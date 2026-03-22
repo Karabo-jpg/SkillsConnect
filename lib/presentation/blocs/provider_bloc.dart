@@ -33,6 +33,22 @@ class AcceptBooking extends ProviderEvent {
   List<Object?> get props => [bookingId];
 }
 
+class LoadProviderDashboard extends ProviderEvent {
+  final String providerId;
+  LoadProviderDashboard(this.providerId);
+
+  @override
+  List<Object?> get props => [providerId];
+}
+
+class UpdateBookings extends ProviderEvent {
+  final List<BookingEntity> bookings;
+  UpdateBookings(this.bookings);
+
+  @override
+  List<Object?> get props => [bookings];
+}
+
 // States
 abstract class ProviderState extends Equatable {
   @override
@@ -54,6 +70,15 @@ class ProviderError extends ProviderState {
 
   @override
   List<Object?> get props => [message];
+}
+
+class DashboardLoaded extends ProviderState {
+  final ProviderEntity profile;
+  final List<BookingEntity> bookings;
+  DashboardLoaded({required this.profile, required this.bookings});
+
+  @override
+  List<Object?> get props => [profile, bookings];
 }
 
 // Bloc
@@ -83,9 +108,33 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
     on<AcceptBooking>((event, emit) async {
       try {
         await repository.acceptBooking(event.bookingId);
-        emit(ProviderInitial()); 
       } catch (e) {
         emit(ProviderError(e.toString()));
+      }
+    });
+
+    on<LoadProviderDashboard>((event, emit) async {
+      emit(ProviderLoading());
+      try {
+        final profile = await repository.getProviderProfile(event.providerId);
+        if (profile != null) {
+          // Listen to bookings stream
+          repository.getBookingsStream(event.providerId, 'provider').listen((bookings) {
+            add(UpdateBookings(bookings));
+          });
+          emit(DashboardLoaded(profile: profile, bookings: []));
+        } else {
+          emit(ProviderError('Profile not found'));
+        }
+      } catch (e) {
+        emit(ProviderError(e.toString()));
+      }
+    });
+
+    on<UpdateBookings>((event, emit) {
+      if (state is DashboardLoaded) {
+        final currentState = state as DashboardLoaded;
+        emit(DashboardLoaded(profile: currentState.profile, bookings: event.bookings));
       }
     });
   }

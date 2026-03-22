@@ -1,28 +1,28 @@
-import 'package:flutter/material.dart';
-import 'package:skillconnect/presentation/pages/success_page.dart';
+import 'package:skillconnect/domain/entities/provider_entity.dart';
 
 class ProviderProfilePage extends StatelessWidget {
-  const ProviderProfilePage({super.key});
+  final ProviderEntity provider;
+  const ProviderProfilePage({super.key, required this.provider});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _ProfileHeader(),
+            const _ProfileHeader(),
             Padding(
-              padding: EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _ProfileNameSection(),
-                  SizedBox(height: 20),
-                  _ProfileBio(),
-                  SizedBox(height: 30),
-                  _BookNowButton(),
+                  _ProfileNameSection(provider: provider),
+                  const SizedBox(height: 20),
+                  _ProfileBio(bio: provider.bio),
+                  const SizedBox(height: 30),
+                  const _BookNowButton(),
                   SizedBox(height: 30),
                   Text(
                     'Portfolio',
@@ -92,27 +92,30 @@ class _ProfileHeader extends StatelessWidget {
 }
 
 class _ProfileNameSection extends StatelessWidget {
-  const _ProfileNameSection();
+  final ProviderEntity provider;
+  const _ProfileNameSection({required this.provider});
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          'Faith the Tailor',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+        Expanded(
+          child: Text(
+            provider.businessName,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         Row(
           children: [
-            Icon(Icons.star, color: Colors.amber, size: 20),
-            SizedBox(width: 4),
+            const Icon(Icons.star, color: Colors.amber, size: 20),
+            const SizedBox(width: 4),
             Text(
-              '4.9',
-              style: TextStyle(
+              provider.rating.toStringAsFixed(1),
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -125,12 +128,13 @@ class _ProfileNameSection extends StatelessWidget {
 }
 
 class _ProfileBio extends StatelessWidget {
-  const _ProfileBio();
+  final String bio;
+  const _ProfileBio({required this.bio});
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      'Passionate about creating custom, beautifully stitched Bitenge dresses and modern African fashion.',
+      bio.isEmpty ? 'No bio available.' : bio,
       style: TextStyle(color: Colors.grey[700], fontSize: 16),
     );
   }

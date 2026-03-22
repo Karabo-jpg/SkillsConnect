@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skillconnect/domain/entities/booking_entity.dart';
+import 'package:skillconnect/domain/entities/provider_entity.dart';
 import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
-import 'package:skillconnect/injection_container.dart' as di;
-
 import 'package:skillconnect/presentation/pages/profile_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -16,31 +17,39 @@ class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<ProviderBloc>().add(LoadProviderDashboard(uid));
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => di.sl<ProviderBloc>(),
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: _buildBody(),
-        bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: const Color(0xFFE67E22),
-          unselectedItemColor: Colors.grey,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Bookings'),
-            BottomNavigationBarItem(icon: Icon(Icons.info_outline), label: 'Info'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          ],
-        ),
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: _buildBody(),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFFE67E22),
+        unselectedItemColor: Colors.grey,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Bookings'),
+          BottomNavigationBarItem(icon: Icon(Icons.info_outline), label: 'Info'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
       ),
     );
   }
@@ -48,7 +57,21 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildBody() {
     switch (_currentIndex) {
       case 0:
-        return const _DashboardHome();
+        return BlocBuilder<ProviderBloc, ProviderState>(
+          builder: (context, state) {
+            if (state is ProviderLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is DashboardLoaded) {
+              return _DashboardHome(
+                profile: state.profile,
+                bookings: state.bookings,
+              );
+            } else if (state is ProviderError) {
+              return Center(child: Text('Error: ${state.message}'));
+            }
+            return const Center(child: Text('Loading dashboard...'));
+          },
+        );
       case 1:
         return const Center(child: Text('Bookings Coming Soon'));
       case 2:
@@ -56,58 +79,64 @@ class _DashboardPageState extends State<DashboardPage> {
       case 3:
         return const ProfilePage();
       default:
-        return const _DashboardHome();
+        return const Center(child: Text('Unknown screen'));
     }
   }
 }
 
 class _DashboardHome extends StatelessWidget {
-  const _DashboardHome();
+  final ProviderEntity profile;
+  final List<BookingEntity> bookings;
+
+  const _DashboardHome({
+    required this.profile,
+    required this.bookings,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const SafeArea(
+    return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
-              'Hello, Faith!',
-              style: TextStyle(
+              'Hello, ${profile.businessName}!',
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFFE67E22),
               ),
             ),
-            SizedBox(height: 20),
-            _BalanceCard(),
-            SizedBox(height: 30),
-            Text(
+            const SizedBox(height: 20),
+            _BalanceCard(balance: '0 UGX'), // Static for now, can be added to profile entity
+            const SizedBox(height: 30),
+            const Text(
               'Active Bookings',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16),
-            _BookingList(),
-            SizedBox(height: 30),
-            _DashboardAction(
+            const SizedBox(height: 16),
+            _BookingList(bookings: bookings),
+            const SizedBox(height: 30),
+            const _DashboardAction(
               icon: Icons.mail_outline,
               title: 'Current Orders',
               trailing: '1',
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _DashboardAction(
               icon: Icons.trending_up,
               title: 'Total Earnings',
-              trailing: '+12%',
+              trailing: '${profile.totalEarnings.toStringAsFixed(0)} UGX',
               isPositive: true,
             ),
-            SizedBox(height: 16),
-            _DashboardAction(
+            const SizedBox(height: 16),
+            const _DashboardAction(
               icon: Icons.grid_view_rounded,
               title: 'My Portfolio',
-              trailing: '12 items',
+              trailing: '0 items',
             ),
           ],
         ),
@@ -117,7 +146,8 @@ class _DashboardHome extends StatelessWidget {
 }
 
 class _BalanceCard extends StatelessWidget {
-  const _BalanceCard();
+  final String balance;
+  const _BalanceCard({required this.balance});
 
   @override
   Widget build(BuildContext context) {
@@ -135,17 +165,17 @@ class _BalanceCard extends StatelessWidget {
           ),
         ],
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Mobile Money Balance',
             style: TextStyle(color: Colors.white70, fontSize: 14),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            '50,000 UGX',
-            style: TextStyle(
+            balance,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -217,77 +247,97 @@ class _DashboardAction extends StatelessWidget {
 }
 
 class _BookingList extends StatelessWidget {
-  const _BookingList();
+  final List<BookingEntity> bookings;
+  const _BookingList({required this.bookings});
 
   @override
   Widget build(BuildContext context) {
-    // Mocking a single booking for demonstration of the DELETE operation
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    if (bookings.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Center(
+          child: Text('No active bookings'),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: bookings.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final booking = bookings[index];
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE67E22).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.calendar_today, color: Color(0xFFE67E22)),
-          ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Dress Tailoring',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE67E22).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                Text(
-                  'Client: Sarah K.',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                child: const Icon(Icons.calendar_today, color: Color(0xFFE67E22)),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      booking.serviceName,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    Text(
+                      'Status: ${booking.status}',
+                      style: const TextStyle(color: Colors.grey, fontSize: 14),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              if (booking.status == 'pending')
+                TextButton(
+                  onPressed: () {
+                    context.read<ProviderBloc>().add(AcceptBooking(booking.bid));
+                  },
+                  child: const Text(
+                    'Accept',
+                    style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              TextButton(
+                onPressed: () {
+                  _showCancelDialog(context, booking.bid);
+                },
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              context.read<ProviderBloc>().add(AcceptBooking('mock_booking_id'));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Booking accepted!')),
-              );
-            },
-            child: const Text(
-              'Accept',
-              style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              _showCancelDialog(context);
-            },
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  void _showCancelDialog(BuildContext context) {
+  void _showCancelDialog(BuildContext context, String bid) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -300,12 +350,8 @@ class _BookingList extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              // Trigger DELETE operation
-              context.read<ProviderBloc>().add(CancelBooking('mock_booking_id'));
+              context.read<ProviderBloc>().add(CancelBooking(bid));
               Navigator.pop(dialogContext);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Booking cancelled successfully')),
-              );
             },
             child: const Text('Yes, Cancel', style: TextStyle(color: Colors.red)),
           ),

@@ -35,6 +35,9 @@ class SkillConnectApp extends StatelessWidget {
         BlocProvider<SettingsBloc>(
           create: (_) => sl<SettingsBloc>()..add(LoadSettings()),
         ),
+        BlocProvider<ProviderBloc>(
+          create: (_) => sl<ProviderBloc>(),
+        ),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {

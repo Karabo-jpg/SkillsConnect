@@ -21,6 +21,9 @@ abstract class FirebaseRemoteDataSource {
   Future<void> createBooking(Map<String, dynamic> bookingData);
   Future<void> deleteBooking(String bookingId);
   Future<void> updateBookingStatus(String bookingId, String status);
+  Future<UserModel?> getUserProfile(String uid);
+  Future<ProviderModel?> getProviderProfile(String uid);
+  Stream<List<BookingModel>> getBookingsStream(String uid, String userType);
   Future<void> sendPasswordResetEmail(String email);
 }
 
@@ -154,6 +157,36 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
   @override
   Future<void> updateBookingStatus(String bookingId, String status) async {
     await _firestore.collection('bookings').doc(bookingId).update({'status': status});
+  }
+
+  @override
+  Future<UserModel?> getUserProfile(String uid) async {
+    final doc = await _firestore.collection('users').doc(uid).get();
+    if (doc.exists && doc.data() != null) {
+      return UserModel.fromJson(doc.data()!);
+    }
+    return null;
+  }
+
+  @override
+  Future<ProviderModel?> getProviderProfile(String uid) async {
+    final doc = await _firestore.collection('providers').doc(uid).get();
+    if (doc.exists && doc.data() != null) {
+      return ProviderModel.fromJson(doc.data()!);
+    }
+    return null;
+  }
+
+  @override
+  Stream<List<BookingModel>> getBookingsStream(String uid, String userType) {
+    final field = userType == 'provider' ? 'providerId' : 'clientId';
+    return _firestore
+        .collection('bookings')
+        .where(field, isEqualTo: uid)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => BookingModel.fromFirestore(doc)).toList();
+    });
   }
 
   @override

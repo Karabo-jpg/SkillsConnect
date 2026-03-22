@@ -5,8 +5,19 @@ import 'package:skillconnect/presentation/blocs/settings/settings_bloc.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_event.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_state.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<ProviderBloc>().add(LoadProvidersByCategory('tailoring'));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,21 +176,42 @@ class _RecommendedSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Recommended Verified Providers',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 16),
-        _ProviderCard(
-          name: 'Faith the Tailor',
-          rating: '4.9',
-          imageUrl: 'assets/images/faith_profile.png',
+        const SizedBox(height: 16),
+        BlocBuilder<ProviderBloc, ProviderState>(
+          builder: (context, state) {
+            if (state is ProviderLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is ProviderLoaded) {
+              if (state.providers.isEmpty) {
+                return const Text('No providers found in this category.');
+              }
+              return ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: state.providers.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final provider = state.providers[index];
+                  return _ProviderCard(
+                    provider: provider,
+                  );
+                },
+              );
+            } else if (state is ProviderError) {
+              return Text('Error: ${state.message}');
+            }
+            return const SizedBox.shrink();
+          },
         ),
       ],
     );
@@ -187,14 +219,10 @@ class _RecommendedSection extends StatelessWidget {
 }
 
 class _ProviderCard extends StatelessWidget {
-  final String name;
-  final String rating;
-  final String imageUrl;
+  final ProviderEntity provider;
 
   const _ProviderCard({
-    required this.name,
-    required this.rating,
-    required this.imageUrl,
+    required this.provider,
   });
 
   @override
@@ -203,7 +231,9 @@ class _ProviderCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const ProviderProfilePage()),
+          MaterialPageRoute(
+            builder: (context) => ProviderProfilePage(provider: provider),
+          ),
         );
       },
       child: Container(
@@ -237,25 +267,37 @@ class _ProviderCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          provider.businessName,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(Icons.check_circle,
-                          color: Colors.green, size: 16),
+                      const Icon(Icons.check_circle, color: Colors.green, size: 16),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Row(
-                    children: List.generate(
-                      5,
-                      (index) => const Icon(Icons.star,
-                          color: Colors.amber, size: 14),
-                    ),
+                    children: [
+                      ...List.generate(
+                        5,
+                        (index) => Icon(
+                          Icons.star,
+                          color: index < provider.rating.floor() ? Colors.amber : Colors.grey[300],
+                          size: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        provider.rating.toStringAsFixed(1),
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -32,4 +32,19 @@ class ProviderRepositoryImpl implements ProviderRepository {
   Future<void> acceptBooking(String bookingId) async {
     await remoteDataSource.updateBookingStatus(bookingId, 'confirmed');
   }
+
+  @override
+  Future<UserEntity?> getUserProfile(String uid) async {
+    return await remoteDataSource.getUserProfile(uid);
+  }
+
+  @override
+  Future<ProviderEntity?> getProviderProfile(String uid) async {
+    return await remoteDataSource.getProviderProfile(uid);
+  }
+
+  @override
+  Stream<List<BookingEntity>> getBookingsStream(String uid, String userType) {
+    return remoteDataSource.getBookingsStream(uid, userType);
+  }
 }

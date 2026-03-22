@@ -33,37 +33,37 @@ class UserModel extends UserEntity {
 class ProviderModel extends ProviderEntity {
   const ProviderModel({
     required super.providerId,
-    required super.name,
+    required super.businessName,
     required super.bio,
     required super.rating,
     required super.ratingCount,
     required super.portfolioImages,
-    required super.basePrice,
+    required super.baseRate,
     required super.category,
   });
 
   factory ProviderModel.fromJson(Map<String, dynamic> json) {
     return ProviderModel(
-      providerId: json['providerId'] ?? '',
-      name: json['name'] ?? '',
+      providerId: json['pid'] ?? '',
+      businessName: json['businessName'] ?? '',
       bio: json['bio'] ?? '',
       rating: (json['rating'] ?? 0.0).toDouble(),
       ratingCount: json['ratingCount'] ?? 0,
       portfolioImages: List<String>.from(json['portfolioImages'] ?? []),
-      basePrice: json['basePrice'] ?? 0,
+      baseRate: (json['baseRate'] ?? 0.0).toDouble(),
       category: json['category'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'providerId': providerId,
-      'name': name,
+      'pid': providerId,
+      'businessName': businessName,
       'bio': bio,
       'rating': rating,
       'ratingCount': ratingCount,
       'portfolioImages': portfolioImages,
-      'basePrice': basePrice,
+      'baseRate': baseRate,
       'category': category,
     };
   }
