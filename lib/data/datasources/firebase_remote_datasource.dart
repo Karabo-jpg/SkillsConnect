@@ -63,17 +63,21 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
       };
 
       try {
-        print('DEBUG: Attempting to write to Firestore users collection...');
-        await _firestore.collection('users').doc(credential.user!.uid).set(userData);
+        print('DEBUG: Attempting to write to Firestore users collection (10s timeout)...');
+        await _firestore.collection('users')
+            .doc(credential.user!.uid)
+            .set(userData)
+            .timeout(const Duration(seconds: 10));
         print('DEBUG: Successfully wrote to Firestore users collection.');
       } catch (e) {
-        print('DEBUG: ERROR writing to users collection: $e');
+        print('DEBUG: ERROR or TIMEOUT writing to users collection: $e');
+        // We rethrow so the Bloc knows it failed
         rethrow;
       }
 
       if (userType == 'provider') {
         try {
-          print('DEBUG: Attempting to write to Firestore providers collection...');
+          print('DEBUG: Attempting to write to Firestore providers collection (10s timeout)...');
           await _firestore.collection('providers').doc(credential.user!.uid).set({
             'pid': credential.user!.uid,
             'businessName': businessName ?? '',
@@ -85,10 +89,10 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
             'verificationStatus': 'pending',
             'portfolioImages': [],
             'totalEarnings': 0.0,
-          });
+          }).timeout(const Duration(seconds: 10));
           print('DEBUG: Successfully wrote to Firestore providers collection.');
         } catch (e) {
-          print('DEBUG: ERROR writing to providers collection: $e');
+          print('DEBUG: ERROR or TIMEOUT writing to providers collection: $e');
           rethrow;
         }
       }
