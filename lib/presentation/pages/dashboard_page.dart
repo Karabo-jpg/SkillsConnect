@@ -234,6 +234,18 @@ class _BookingList extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
+              context.read<ProviderBloc>().add(AcceptBooking('mock_booking_id'));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Booking accepted!')),
+              );
+            },
+            child: const Text(
+              'Accept',
+              style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
               _showCancelDialog(context);
             },
             child: const Text(

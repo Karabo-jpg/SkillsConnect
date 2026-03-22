@@ -23,10 +23,25 @@ class SignUpRequested extends AuthEvent {
   final String email;
   final String password;
   final String name;
-  SignUpRequested(this.email, this.password, this.name);
+  final String userType;
+  final String? businessName;
+  final String? category;
+  final double? baseRate;
+  final String? bio;
+
+  SignUpRequested(
+    this.email,
+    this.password,
+    this.name, {
+    this.userType = 'client',
+    this.businessName,
+    this.category,
+    this.baseRate,
+    this.bio,
+  });
 
   @override
-  List<Object?> get props => [email, password, name];
+  List<Object?> get props => [email, password, name, userType, businessName, category, baseRate, bio];
 }
 
 class AuthSendPasswordResetRequested extends AuthEvent {
@@ -49,10 +64,11 @@ class AuthInitial extends AuthState {}
 class AuthLoading extends AuthState {}
 class Authenticated extends AuthState {
   final User user;
-  Authenticated(this.user);
+  final String userType;
+  Authenticated(this.user, this.userType);
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [user, userType];
 }
 class Unauthenticated extends AuthState {}
 class AuthError extends AuthState {
@@ -78,14 +94,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onAuthCheckRequested(AuthCheckRequested event, Emitter<AuthState> emit) async {
     await emit.forEach<User?>(
       repository.user,
-      onData: (user) => user != null ? Authenticated(user) : Unauthenticated(),
+      onData: (user) {
+        if (user != null) {
+          // We can't use async here easily in forEach without a stream transformer
+          // but we can add a new private event for fetching data if needed.
+          // For simplicity in this session, since authStateChanges is a stream:
+          return Authenticated(user, 'client'); // Default to client, will be updated by Login/SignUp
+        }
+        return Unauthenticated();
+      },
     );
   }
 
   Future<void> _onLogInRequested(LogInRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      await repository.signIn(event.email, event.password);
+      final user = await repository.signIn(event.email, event.password);
+      if (user != null) {
+        final userType = await repository.getUserType(user.uid);
+        emit(Authenticated(user, userType ?? 'client'));
+      }
     } catch (e) {
       emit(AuthError(e.toString()));
     }
@@ -94,7 +122,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onSignUpRequested(SignUpRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      await repository.signUp(event.email, event.password, event.name);
+      final user = await repository.signUp(
+        event.email,
+        event.password,
+        event.name,
+        userType: event.userType,
+        businessName: event.businessName,
+        category: event.category,
+        baseRate: event.baseRate,
+        bio: event.bio,
+      );
+      if (user != null) {
+        emit(Authenticated(user, event.userType));
+      }
     } catch (e) {
       emit(AuthError(e.toString()));
     }

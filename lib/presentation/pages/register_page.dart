@@ -13,12 +13,24 @@ class _RegisterPageState extends State<RegisterPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _businessNameController = TextEditingController();
+  final _baseRateController = TextEditingController();
+  final _bioController = TextEditingController();
+
+  String _userType = 'client';
+  String _selectedCategory = 'Tailoring';
+  final List<String> _categories = ['Tailoring', 'Baking', 'Hair', 'Other'];
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _businessNameController.dispose();
+    _baseRateController.dispose();
+    _bioController.dispose();
     super.dispose();
   }
 
@@ -48,40 +60,94 @@ class _RegisterPageState extends State<RegisterPage> {
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey),
               ),
-              const SizedBox(height: 40),
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Full Name',
-                  prefixIcon: const Icon(Icons.person_outline),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+              const SizedBox(height: 30),
+              // Role Toggle
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _userType = 'client'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: _userType == 'client' ? const Color(0xFFE67E22) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'Client',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: _userType == 'client' ? Colors.white : Colors.black54,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _userType = 'provider'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: _userType == 'provider' ? const Color(0xFFE67E22) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'Provider',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: _userType == 'provider' ? Colors.white : Colors.black54,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 30),
+              _buildTextField(_nameController, 'Full Name', Icons.person_outline),
               const SizedBox(height: 16),
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
+              _buildTextField(_emailController, 'Email', Icons.email_outlined),
               const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+              _buildTextField(_passwordController, 'Password', Icons.lock_outline, obscureText: true),
+              const SizedBox(height: 16),
+              _buildTextField(_confirmPasswordController, 'Confirm Password', Icons.lock_outline, obscureText: true),
+              
+              if (_userType == 'provider') ...[
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 24),
+                const Text(
+                  'Business Details',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
+                const SizedBox(height: 16),
+                _buildTextField(_businessNameController, 'Business Name', Icons.business_outlined),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  decoration: InputDecoration(
+                    labelText: 'Category',
+                    prefixIcon: const Icon(Icons.category_outlined),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                  onChanged: (val) => setState(() => _selectedCategory = val!),
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(_baseRateController, 'Base Rate (UGX)', Icons.payments_outlined, keyboardType: TextInputType.number),
+                const SizedBox(height: 16),
+                _buildTextField(_bioController, 'Short Bio', Icons.description_outlined, maxLines: 3),
+              ],
+
               const SizedBox(height: 32),
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
@@ -90,7 +156,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       SnackBar(content: Text(state.message)),
                     );
                   } else if (state is Authenticated) {
-                    Navigator.pop(context); // Go back to login/home
+                    Navigator.pop(context);
                   }
                 },
                 builder: (context, state) {
@@ -98,17 +164,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   return ElevatedButton(
-                    onPressed: () {
-                      if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-                        context.read<AuthBloc>().add(
-                          SignUpRequested(
-                            _emailController.text,
-                            _passwordController.text,
-                            _nameController.text,
-                          ),
-                        );
-                      }
-                    },
+                    onPressed: _onSignUpPressed,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFE67E22),
                       foregroundColor: Colors.white,
@@ -124,6 +180,59 @@ class _RegisterPageState extends State<RegisterPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label,
+    IconData icon, {
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  void _onSignUpPressed() {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _nameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      return;
+    }
+
+    if (_userType == 'provider' && (_businessNameController.text.isEmpty || _baseRateController.text.isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Provider details are required')));
+      return;
+    }
+
+    context.read<AuthBloc>().add(
+      SignUpRequested(
+        _emailController.text,
+        _passwordController.text,
+        _nameController.text,
+        userType: _userType,
+        businessName: _userType == 'provider' ? _businessNameController.text : null,
+        category: _userType == 'provider' ? _selectedCategory : null,
+        baseRate: _userType == 'provider' ? double.tryParse(_baseRateController.text) : null,
+        bio: _userType == 'provider' ? _bioController.text : null,
       ),
     );
   }

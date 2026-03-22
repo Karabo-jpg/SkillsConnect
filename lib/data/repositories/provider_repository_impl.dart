@@ -27,4 +27,9 @@ class ProviderRepositoryImpl implements ProviderRepository {
   Future<void> cancelBooking(String bookingId) async {
     await remoteDataSource.deleteBooking(bookingId);
   }
+
+  @override
+  Future<void> acceptBooking(String bookingId) async {
+    await remoteDataSource.updateBookingStatus(bookingId, 'confirmed');
+  }
 }

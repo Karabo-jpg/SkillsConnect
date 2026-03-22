@@ -14,8 +14,26 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<User?> signUp(String email, String password, String name) {
-    return remoteDataSource.signUpWithEmail(email, password, name);
+  Future<User?> signUp(
+    String email,
+    String password,
+    String name, {
+    String? userType,
+    String? businessName,
+    String? category,
+    double? baseRate,
+    String? bio,
+  }) {
+    return remoteDataSource.signUpWithEmail(
+      email,
+      password,
+      name,
+      userType: userType ?? 'client',
+      businessName: businessName,
+      category: category,
+      baseRate: baseRate,
+      bio: bio,
+    );
   }
 
   @override
@@ -26,6 +44,11 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> sendPasswordResetEmail(String email) {
     return remoteDataSource.sendPasswordResetEmail(email);
+  }
+
+  @override
+  Future<String?> getUserType(String uid) {
+    return remoteDataSource.getUserType(uid);
   }
 
   @override

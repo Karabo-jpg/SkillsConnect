@@ -25,6 +25,14 @@ class CancelBooking extends ProviderEvent {
   List<Object?> get props => [bookingId];
 }
 
+class AcceptBooking extends ProviderEvent {
+  final String bookingId;
+  AcceptBooking(this.bookingId);
+
+  @override
+  List<Object?> get props => [bookingId];
+}
+
 // States
 abstract class ProviderState extends Equatable {
   @override
@@ -66,7 +74,15 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
     on<CancelBooking>((event, emit) async {
       try {
         await repository.cancelBooking(event.bookingId);
-        // In a real app we'd reload bookings here
+        emit(ProviderInitial()); 
+      } catch (e) {
+        emit(ProviderError(e.toString()));
+      }
+    });
+
+    on<AcceptBooking>((event, emit) async {
+      try {
+        await repository.acceptBooking(event.bookingId);
         emit(ProviderInitial()); 
       } catch (e) {
         emit(ProviderError(e.toString()));

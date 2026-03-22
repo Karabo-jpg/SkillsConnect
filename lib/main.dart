@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillconnect/presentation/pages/home_page.dart';
 import 'package:skillconnect/presentation/pages/login_page.dart';
+import 'package:skillconnect/presentation/pages/dashboard_page.dart';
 import 'package:skillconnect/presentation/blocs/auth_bloc.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_bloc.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_event.dart';
@@ -67,7 +68,9 @@ class SkillConnectApp extends StatelessWidget {
             home: BlocBuilder<AuthBloc, AuthState>(
               builder: (context, authState) {
                 if (authState is Authenticated) {
-                  return const HomePage();
+                  return authState.userType == 'provider'
+                      ? const DashboardPage()
+                      : const HomePage();
                 } else if (authState is Unauthenticated) {
                   return const LoginPage();
                 }

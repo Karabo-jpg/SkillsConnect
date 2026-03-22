@@ -4,11 +4,22 @@ import 'package:skillconnect/data/models/provider_model.dart';
 
 abstract class FirebaseRemoteDataSource {
   Future<User?> signInWithEmail(String email, String password);
-  Future<User?> signUpWithEmail(String email, String password, String name);
+  Future<User?> signUpWithEmail(
+    String email,
+    String password,
+    String name, {
+    String userType = 'client',
+    String? businessName,
+    String? category,
+    double? baseRate,
+    String? bio,
+  });
+  Future<String?> getUserType(String uid);
   Future<void> signOut();
   Future<List<ProviderModel>> getProvidersByCategory(String category);
   Future<void> createBooking(Map<String, dynamic> bookingData);
   Future<void> deleteBooking(String bookingId);
+  Future<void> updateBookingStatus(String bookingId, String status);
   Future<void> sendPasswordResetEmail(String email);
 }
 
@@ -26,20 +37,54 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
   }
 
   @override
-  Future<User?> signUpWithEmail(String email, String password, String name) async {
+  Future<User?> signUpWithEmail(
+    String email,
+    String password,
+    String name, {
+    String userType = 'client',
+    String? businessName,
+    String? category,
+    double? baseRate,
+    String? bio,
+  }) async {
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
     if (credential.user != null) {
-      await _firestore.collection('users').doc(credential.user!.uid).set({
+      final userData = {
         'uid': credential.user!.uid,
         'email': email,
         'displayName': name,
-        'userType': 'client',
-      });
+        'userType': userType,
+        'createdAt': FieldValue.serverTimestamp(),
+        'balance': 0, // Initial balance
+      };
+
+      await _firestore.collection('users').doc(credential.user!.uid).set(userData);
+
+      if (userType == 'provider') {
+        await _firestore.collection('providers').doc(credential.user!.uid).set({
+          'pid': credential.user!.uid,
+          'businessName': businessName ?? '',
+          'category': category ?? '',
+          'baseRate': baseRate ?? 0.0,
+          'bio': bio ?? '',
+          'rating': 0.0,
+          'ratingCount': 0,
+          'verificationStatus': 'pending',
+          'portfolioImages': [],
+          'totalEarnings': 0.0,
+        });
+      }
     }
     return credential.user;
+  }
+
+  @override
+  Future<String?> getUserType(String uid) async {
+    final doc = await _firestore.collection('users').doc(uid).get();
+    return doc.data()?['userType'] as String?;
   }
 
   @override
@@ -62,6 +107,11 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
   @override
   Future<void> deleteBooking(String bookingId) async {
     await _firestore.collection('bookings').doc(bookingId).delete();
+  }
+
+  @override
+  Future<void> updateBookingStatus(String bookingId, String status) async {
+    await _firestore.collection('bookings').doc(bookingId).update({'status': status});
   }
 
   @override
