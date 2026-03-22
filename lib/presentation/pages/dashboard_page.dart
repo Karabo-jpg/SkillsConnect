@@ -216,9 +216,6 @@ class _DashboardAction extends StatelessWidget {
   }
 }
 
-  }
-}
-
 class _BookingList extends StatelessWidget {
   const _BookingList();
 
