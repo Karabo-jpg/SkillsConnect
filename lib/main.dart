@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/injection_container.dart' as di;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skillconnect/presentation/pages/home_page.dart';
 import 'package:skillconnect/presentation/pages/main_page.dart';
 import 'package:skillconnect/presentation/pages/login_page.dart';
 import 'package:skillconnect/presentation/pages/dashboard_page.dart';
