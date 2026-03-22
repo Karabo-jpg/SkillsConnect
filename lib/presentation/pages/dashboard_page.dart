@@ -3,8 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
 import 'package:skillconnect/injection_container.dart' as di;
 
-class DashboardPage extends StatelessWidget {
+import 'package:skillconnect/presentation/pages/profile_page.dart';
+
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -12,54 +21,96 @@ class DashboardPage extends StatelessWidget {
       create: (context) => di.sl<ProviderBloc>(),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        body: const SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 10),
-                Text(
-                  'Hello, Faith!',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFE67E22),
-                  ),
-                ),
-                SizedBox(height: 20),
-                _BalanceCard(),
-                SizedBox(height: 30),
-                Text(
-                  'Active Bookings',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                _BookingList(),
-                SizedBox(height: 30),
-                _DashboardAction(
-                  icon: Icons.mail_outline,
-                  title: 'Current Orders',
-                  trailing: '1',
-                ),
-                SizedBox(height: 16),
-                _DashboardAction(
-                  icon: Icons.trending_up,
-                  title: 'Total Earnings',
-                  trailing: '+12%',
-                  isPositive: true,
-                ),
-                SizedBox(height: 16),
-                _DashboardAction(
-                  icon: Icons.grid_view_rounded,
-                  title: 'My Portfolio',
-                  trailing: '12 items',
-                ),
-              ],
-            ),
-          ),
+        body: _buildBody(),
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: const Color(0xFFE67E22),
+          unselectedItemColor: Colors.grey,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Bookings'),
+            BottomNavigationBarItem(icon: Icon(Icons.info_outline), label: 'Info'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          ],
         ),
-        bottomNavigationBar: const _BottomNav(),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    switch (_currentIndex) {
+      case 0:
+        return const _DashboardHome();
+      case 1:
+        return const Center(child: Text('Bookings Coming Soon'));
+      case 2:
+        return const Center(child: Text('Support/Info Coming Soon'));
+      case 3:
+        return const ProfilePage();
+      default:
+        return const _DashboardHome();
+    }
+  }
+}
+
+class _DashboardHome extends StatelessWidget {
+  const _DashboardHome();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 10),
+            Text(
+              'Hello, Faith!',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFE67E22),
+              ),
+            ),
+            SizedBox(height: 20),
+            _BalanceCard(),
+            SizedBox(height: 30),
+            Text(
+              'Active Bookings',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16),
+            _BookingList(),
+            SizedBox(height: 30),
+            _DashboardAction(
+              icon: Icons.mail_outline,
+              title: 'Current Orders',
+              trailing: '1',
+            ),
+            SizedBox(height: 16),
+            _DashboardAction(
+              icon: Icons.trending_up,
+              title: 'Total Earnings',
+              trailing: '+12%',
+              isPositive: true,
+            ),
+            SizedBox(height: 16),
+            _DashboardAction(
+              icon: Icons.grid_view_rounded,
+              title: 'My Portfolio',
+              trailing: '12 items',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -165,25 +216,6 @@ class _DashboardAction extends StatelessWidget {
   }
 }
 
-class _BottomNav extends StatelessWidget {
-  const _BottomNav();
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFFE67E22),
-      unselectedItemColor: Colors.grey,
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
-      currentIndex: 3,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Bookings'),
-        BottomNavigationBarItem(icon: Icon(Icons.info_outline), label: 'Info'),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-      ],
-    );
   }
 }
 

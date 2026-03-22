@@ -4,6 +4,7 @@ import 'package:skillconnect/injection_container.dart' as di;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skillconnect/presentation/pages/home_page.dart';
+import 'package:skillconnect/presentation/pages/main_page.dart';
 import 'package:skillconnect/presentation/pages/login_page.dart';
 import 'package:skillconnect/presentation/pages/dashboard_page.dart';
 import 'package:skillconnect/presentation/blocs/auth_bloc.dart';
@@ -70,7 +71,7 @@ class SkillConnectApp extends StatelessWidget {
                 if (authState is Authenticated) {
                   return authState.userType == 'provider'
                       ? const DashboardPage()
-                      : const HomePage();
+                      : const MainPage();
                 } else if (authState is Unauthenticated) {
                   return const LoginPage();
                 }
