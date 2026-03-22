@@ -51,7 +51,8 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
       email: email,
       password: password,
     );
-    if (credential.user != null) {
+      print('DEBUG: Auth successful. UID: ${credential.user!.uid}');
+      
       final userData = {
         'uid': credential.user!.uid,
         'email': email,
@@ -61,21 +62,35 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
         'balance': 0, // Initial balance
       };
 
-      await _firestore.collection('users').doc(credential.user!.uid).set(userData);
+      try {
+        print('DEBUG: Attempting to write to Firestore users collection...');
+        await _firestore.collection('users').doc(credential.user!.uid).set(userData);
+        print('DEBUG: Successfully wrote to Firestore users collection.');
+      } catch (e) {
+        print('DEBUG: ERROR writing to users collection: $e');
+        rethrow;
+      }
 
       if (userType == 'provider') {
-        await _firestore.collection('providers').doc(credential.user!.uid).set({
-          'pid': credential.user!.uid,
-          'businessName': businessName ?? '',
-          'category': category ?? '',
-          'baseRate': baseRate ?? 0.0,
-          'bio': bio ?? '',
-          'rating': 0.0,
-          'ratingCount': 0,
-          'verificationStatus': 'pending',
-          'portfolioImages': [],
-          'totalEarnings': 0.0,
-        });
+        try {
+          print('DEBUG: Attempting to write to Firestore providers collection...');
+          await _firestore.collection('providers').doc(credential.user!.uid).set({
+            'pid': credential.user!.uid,
+            'businessName': businessName ?? '',
+            'category': category ?? '',
+            'baseRate': baseRate ?? 0.0,
+            'bio': bio ?? '',
+            'rating': 0.0,
+            'ratingCount': 0,
+            'verificationStatus': 'pending',
+            'portfolioImages': [],
+            'totalEarnings': 0.0,
+          });
+          print('DEBUG: Successfully wrote to Firestore providers collection.');
+        } catch (e) {
+          print('DEBUG: ERROR writing to providers collection: $e');
+          rethrow;
+        }
       }
     }
     return credential.user;
