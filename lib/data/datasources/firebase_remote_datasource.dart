@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:skillconnect/data/models/provider_model.dart';
@@ -47,40 +48,41 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
     double? baseRate,
     String? bio,
   }) async {
-    final credential = await _auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    if (credential.user != null) {
-      print('DEBUG: Auth successful. UID: ${credential.user!.uid}');
-      
-      final userData = {
-        'uid': credential.user!.uid,
-        'email': email,
-        'displayName': name,
-        'userType': userType,
-        'createdAt': FieldValue.serverTimestamp(),
-        'balance': 0, // Initial balance
-      };
+    dev.log('SIGNUP: Starting Auth for $email', name: 'SkillConnect');
+    
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-      try {
-        print('DEBUG: Attempting to write to Firestore users collection (10s timeout)...');
-        await _firestore.collection('users')
-            .doc(credential.user!.uid)
-            .set(userData)
-            .timeout(const Duration(seconds: 10));
-        print('DEBUG: Successfully wrote to Firestore users collection.');
-      } catch (e) {
-        print('DEBUG: ERROR or TIMEOUT writing to users collection: $e');
-        // We rethrow so the Bloc knows it failed
-        rethrow;
-      }
+      if (credential.user != null) {
+        final uid = credential.user!.uid;
+        dev.log('SIGNUP: Auth Success. UID: $uid', name: 'SkillConnect');
+        
+        final userData = {
+          'uid': uid,
+          'email': email,
+          'displayName': name,
+          'userType': userType,
+          'createdAt': FieldValue.serverTimestamp(),
+          'balance': 0,
+        };
 
-      if (userType == 'provider') {
-        try {
-          print('DEBUG: Attempting to write to Firestore providers collection (10s timeout)...');
-          await _firestore.collection('providers').doc(credential.user!.uid).set({
-            'pid': credential.user!.uid,
+        dev.log('SIGNUP: Writing to users collection...', name: 'SkillConnect');
+        await _firestore.collection('users').doc(uid).set(userData).timeout(
+          const Duration(seconds: 15),
+          onTimeout: () {
+            dev.log('SIGNUP: ERROR - Users collection write timed out!', name: 'SkillConnect');
+            throw Exception('Firestore Timeout');
+          },
+        );
+        dev.log('SIGNUP: Users collection write successful', name: 'SkillConnect');
+
+        if (userType == 'provider') {
+          dev.log('SIGNUP: Writing to providers collection...', name: 'SkillConnect');
+          await _firestore.collection('providers').doc(uid).set({
+            'pid': uid,
             'businessName': businessName ?? '',
             'category': category ?? '',
             'baseRate': baseRate ?? 0.0,
@@ -90,15 +92,23 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
             'verificationStatus': 'pending',
             'portfolioImages': [],
             'totalEarnings': 0.0,
-          }).timeout(const Duration(seconds: 10));
-          print('DEBUG: Successfully wrote to Firestore providers collection.');
-        } catch (e) {
-          print('DEBUG: ERROR or TIMEOUT writing to providers collection: $e');
-          rethrow;
+          }).timeout(
+            const Duration(seconds: 15),
+            onTimeout: () {
+              dev.log('SIGNUP: ERROR - Providers collection write timed out!', name: 'SkillConnect');
+              throw Exception('Firestore Timeout (Provider)');
+            },
+          );
+          dev.log('SIGNUP: Providers collection write successful', name: 'SkillConnect');
         }
+        
+        return credential.user;
       }
+    } catch (e) {
+      dev.log('SIGNUP: CRITICAL ERROR: $e', name: 'SkillConnect', error: e);
+      rethrow;
     }
-    return credential.user;
+    return null;
   }
 
   @override
