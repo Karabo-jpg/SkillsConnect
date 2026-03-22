@@ -51,6 +51,7 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
       email: email,
       password: password,
     );
+    if (credential.user != null) {
       print('DEBUG: Auth successful. UID: ${credential.user!.uid}');
       
       final userData = {
