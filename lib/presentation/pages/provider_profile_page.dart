@@ -28,16 +28,13 @@ class ProviderProfilePage extends StatelessWidget {
                   _ProfileBio(bio: provider.bio),
                   const SizedBox(height: 30),
                   _BookNowButton(provider: provider),
-                  SizedBox(height: 30),
-                  Text(
+                  const SizedBox(height: 30),
+                  const Text(
                     'Portfolio',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 16),
-                  _PortfolioGrid(),
+                  const SizedBox(height: 16),
+                  const _PortfolioGrid(),
                 ],
               ),
             ),
@@ -108,10 +105,7 @@ class _ProfileNameSection extends StatelessWidget {
         Expanded(
           child: Text(
             provider.businessName,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
         ),
         Row(
@@ -120,10 +114,7 @@ class _ProfileNameSection extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               provider.rating.toStringAsFixed(1),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ],
         ),
@@ -149,12 +140,185 @@ class _BookNowButton extends StatelessWidget {
   final ProviderEntity provider;
   const _BookNowButton({required this.provider});
 
+  String _getCategoryHint(String category) {
+    switch (category.toLowerCase()) {
+      case 'tailoring':
+        return 'Describe fabric type, measurements, design preferences...';
+      case 'baking':
+        return 'Cake flavor, size, occasion, decoration style...';
+      case 'hair':
+        return 'Desired hairstyle, hair type, any references...';
+      default:
+        return 'Describe what you need for this service...';
+    }
+  }
+
+  void _showBookingDialog(BuildContext context) {
+    final notesController = TextEditingController();
+    DateTime? selectedDate;
+    TimeOfDay? selectedTime;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Book ${provider.businessName}'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Service & Price summary
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE67E22).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(provider.category, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          Text('${provider.baseRate.toStringAsFixed(0)} UGX',
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE67E22))),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Date Picker
+                    const Text('Preferred Date', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now().add(const Duration(days: 1)),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                        );
+                        if (date != null) {
+                          setState(() => selectedDate = date);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.calendar_today, size: 18, color: Color(0xFFE67E22)),
+                            const SizedBox(width: 8),
+                            Text(selectedDate != null
+                                ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
+                                : 'Select date'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Time Picker
+                    const Text('Preferred Time', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () async {
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: const TimeOfDay(hour: 9, minute: 0),
+                        );
+                        if (time != null) {
+                          setState(() => selectedTime = time);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.access_time, size: 18, color: Color(0xFFE67E22)),
+                            const SizedBox(width: 8),
+                            Text(selectedTime != null
+                                ? selectedTime!.format(context)
+                                : 'Select time'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Notes
+                    Text('Details (${provider.category})', style: const TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: notesController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: _getCategoryHint(provider.category),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final uid = FirebaseAuth.instance.currentUser?.uid;
+                    if (uid == null) return;
+
+                    DateTime? scheduledDateTime;
+                    if (selectedDate != null) {
+                      final time = selectedTime ?? const TimeOfDay(hour: 9, minute: 0);
+                      scheduledDateTime = DateTime(
+                        selectedDate!.year,
+                        selectedDate!.month,
+                        selectedDate!.day,
+                        time.hour,
+                        time.minute,
+                      );
+                    }
+
+                    context.read<ProviderBloc>().add(CreateBookingEvent(
+                      providerId: provider.providerId,
+                      serviceName: provider.category,
+                      amount: provider.baseRate.toInt(),
+                      notes: notesController.text.trim(),
+                      scheduledDate: scheduledDateTime,
+                    ));
+
+                    Navigator.pop(dialogContext);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF16A085),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Confirm Booking'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<ProviderBloc, ProviderState>(
       listener: (context, state) {
         if (state is BookingSuccess) {
-          // Reload providers so they don't disappear
           context.read<ProviderBloc>().add(LoadProvidersByCategory(provider.category));
           Navigator.push(
             context,
@@ -175,28 +339,11 @@ class _BookNowButton extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         child: ElevatedButton(
-          onPressed: () {
-            final uid = FirebaseAuth.instance.currentUser?.uid;
-            if (uid == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Please log in to book')),
-              );
-              return;
-            }
-
-            // Create booking in Firestore
-            context.read<ProviderBloc>().add(CreateBookingEvent(
-              providerId: provider.providerId,
-              serviceName: provider.category,
-              amount: provider.baseRate.toInt(),
-            ));
-          },
+          onPressed: () => _showBookingDialog(context),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF16A085),
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
           child: const Text(

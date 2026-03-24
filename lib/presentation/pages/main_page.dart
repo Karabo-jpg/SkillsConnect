@@ -7,7 +7,6 @@ import 'package:skillconnect/domain/entities/booking_entity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 /// Main page for client users with bottom navigation.
-/// Contains Home, Bookings, Info, and Profile tabs.
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
@@ -74,7 +73,6 @@ class _ClientBookingsTabState extends State<_ClientBookingsTab> {
     super.initState();
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid != null) {
-      // Directly listen to client bookings stream
       final repo = context.read<ProviderBloc>().repository;
       _bookingsStream = repo.getBookingsStream(uid, 'client');
     }
@@ -122,7 +120,7 @@ class _ClientBookingsTabState extends State<_ClientBookingsTab> {
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final booking = bookings[index];
-                    return _BookingCard(booking: booking);
+                    return _ClientBookingCard(booking: booking);
                   },
                 );
               },
@@ -131,12 +129,190 @@ class _ClientBookingsTabState extends State<_ClientBookingsTab> {
   }
 }
 
-class _BookingCard extends StatelessWidget {
+class _ClientBookingCard extends StatelessWidget {
   final BookingEntity booking;
-  const _BookingCard({required this.booking});
+  const _ClientBookingCard({required this.booking});
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'pending':
+        return Colors.orange;
+      case 'accepted':
+        return Colors.blue;
+      case 'in-progress':
+        return Colors.purple;
+      case 'completed':
+        return Colors.green;
+      case 'rejected':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  void _showEditDialog(BuildContext context) {
+    final notesController = TextEditingController(text: booking.notes);
+    DateTime? selectedDate = booking.scheduledDate;
+    TimeOfDay? selectedTime = booking.scheduledDate != null
+        ? TimeOfDay.fromDateTime(booking.scheduledDate!)
+        : null;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Edit Booking'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Date
+                    const Text('Scheduled Date', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: selectedDate ?? DateTime.now().add(const Duration(days: 1)),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                        );
+                        if (date != null) setState(() => selectedDate = date);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.calendar_today, size: 18, color: Color(0xFFE67E22)),
+                            const SizedBox(width: 8),
+                            Text(selectedDate != null
+                                ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
+                                : 'Select date'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Time
+                    const Text('Scheduled Time', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () async {
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: selectedTime ?? const TimeOfDay(hour: 9, minute: 0),
+                        );
+                        if (time != null) setState(() => selectedTime = time);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.access_time, size: 18, color: Color(0xFFE67E22)),
+                            const SizedBox(width: 8),
+                            Text(selectedTime != null
+                                ? selectedTime!.format(context)
+                                : 'Select time'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Notes
+                    const Text('Notes', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: notesController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Update your booking details...',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    DateTime? scheduledDateTime;
+                    if (selectedDate != null) {
+                      final time = selectedTime ?? const TimeOfDay(hour: 9, minute: 0);
+                      scheduledDateTime = DateTime(
+                        selectedDate!.year, selectedDate!.month, selectedDate!.day,
+                        time.hour, time.minute,
+                      );
+                    }
+                    context.read<ProviderBloc>().add(EditBookingEvent(
+                      bookingId: booking.bid,
+                      notes: notesController.text.trim(),
+                      scheduledDate: scheduledDateTime,
+                    ));
+                    Navigator.pop(dialogContext);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Booking updated!')),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF16A085),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Booking'),
+        content: const Text('Are you sure you want to delete this booking? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<ProviderBloc>().add(DeleteBookingEvent(booking.bid));
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Booking deleted')),
+              );
+            },
+            child: const Text('Yes, Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final bool canEdit = booking.status == 'pending' || booking.status == 'accepted';
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -150,43 +326,94 @@ class _BookingCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE67E22).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.calendar_today, color: Color(0xFFE67E22)),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  booking.serviceName,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          // Header row
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE67E22).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 4),
+                child: const Icon(Icons.calendar_today, color: Color(0xFFE67E22)),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(booking.serviceName,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: _statusColor(booking.status).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        booking.status.toUpperCase(),
+                        style: TextStyle(
+                          color: _statusColor(booking.status),
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text('${booking.depositAmount.toStringAsFixed(0)} UGX',
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE67E22))),
+            ],
+          ),
+
+          // Scheduled date
+          if (booking.scheduledDate != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.event, size: 14, color: Colors.grey),
+                const SizedBox(width: 4),
                 Text(
-                  'Status: ${booking.status}',
-                  style: TextStyle(
-                    color: booking.status == 'pending' ? Colors.orange : Colors.green,
-                    fontSize: 14,
-                  ),
+                  'Scheduled: ${booking.scheduledDate!.day}/${booking.scheduledDate!.month}/${booking.scheduledDate!.year} at ${TimeOfDay.fromDateTime(booking.scheduledDate!).format(context)}',
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
                 ),
               ],
             ),
-          ),
-          if (booking.status == 'pending')
-            TextButton(
-              onPressed: () {
-                context.read<ProviderBloc>().add(CancelBooking(booking.bid));
-              },
-              child: const Text('Cancel', style: TextStyle(color: Colors.red)),
+          ],
+
+          // Notes
+          if (booking.notes.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text('Notes: ${booking.notes}',
+                style: const TextStyle(color: Colors.grey, fontSize: 13)),
+          ],
+
+          // Action buttons
+          if (canEdit) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  onPressed: () => _showEditDialog(context),
+                  icon: const Icon(Icons.edit, size: 16),
+                  label: const Text('Edit'),
+                  style: TextButton.styleFrom(foregroundColor: const Color(0xFF16A085)),
+                ),
+                TextButton.icon(
+                  onPressed: () => _showDeleteDialog(context),
+                  icon: const Icon(Icons.delete, size: 16),
+                  label: const Text('Delete'),
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                ),
+              ],
             ),
+          ],
         ],
       ),
     );

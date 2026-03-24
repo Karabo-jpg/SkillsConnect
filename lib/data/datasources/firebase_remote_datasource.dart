@@ -1,4 +1,4 @@
-import 'dart:developer' as dev;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:skillconnect/data/models/provider_model.dart';
@@ -26,6 +26,7 @@ abstract class FirebaseRemoteDataSource {
   Future<ProviderModel?> getProviderProfile(String uid);
   Stream<List<BookingModel>> getBookingsStream(String uid, String userType);
   Future<void> sendPasswordResetEmail(String email);
+  Future<void> updateBooking(String bookingId, Map<String, dynamic> data);
 }
 
 class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
@@ -171,6 +172,11 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
         .map((snapshot) {
       return snapshot.docs.map((doc) => BookingModel.fromFirestore(doc)).toList();
     });
+  }
+
+  @override
+  Future<void> updateBooking(String bookingId, Map<String, dynamic> data) async {
+    await _firestore.collection('bookings').doc(bookingId).update(data);
   }
 
   @override

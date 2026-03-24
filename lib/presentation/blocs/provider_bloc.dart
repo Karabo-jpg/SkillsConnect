@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:skillconnect/domain/entities/provider_entity.dart';
 import 'package:skillconnect/domain/entities/booking_entity.dart';
 import 'package:skillconnect/domain/repositories/provider_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Events
 abstract class ProviderEvent extends Equatable {
@@ -55,10 +56,49 @@ class CreateBookingEvent extends ProviderEvent {
   final String providerId;
   final String serviceName;
   final int amount;
-  CreateBookingEvent({required this.providerId, required this.serviceName, required this.amount});
+  final String notes;
+  final DateTime? scheduledDate;
+
+  CreateBookingEvent({
+    required this.providerId,
+    required this.serviceName,
+    required this.amount,
+    this.notes = '',
+    this.scheduledDate,
+  });
 
   @override
-  List<Object?> get props => [providerId, serviceName, amount];
+  List<Object?> get props => [providerId, serviceName, amount, notes, scheduledDate];
+}
+
+/// Event to update a booking's status (provider side)
+class UpdateBookingStatusEvent extends ProviderEvent {
+  final String bookingId;
+  final String newStatus;
+  UpdateBookingStatusEvent({required this.bookingId, required this.newStatus});
+
+  @override
+  List<Object?> get props => [bookingId, newStatus];
+}
+
+/// Event to edit booking details (client side - notes, scheduledDate)
+class EditBookingEvent extends ProviderEvent {
+  final String bookingId;
+  final String? notes;
+  final DateTime? scheduledDate;
+  EditBookingEvent({required this.bookingId, this.notes, this.scheduledDate});
+
+  @override
+  List<Object?> get props => [bookingId, notes, scheduledDate];
+}
+
+/// Event to delete a booking (client side)
+class DeleteBookingEvent extends ProviderEvent {
+  final String bookingId;
+  DeleteBookingEvent(this.bookingId);
+
+  @override
+  List<Object?> get props => [bookingId];
 }
 
 // States
@@ -96,6 +136,15 @@ class DashboardLoaded extends ProviderState {
 /// State emitted when a booking is successfully created
 class BookingSuccess extends ProviderState {}
 
+/// State emitted when a booking operation (edit/delete/status) succeeds
+class BookingOperationSuccess extends ProviderState {
+  final String message;
+  BookingOperationSuccess(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
 // Bloc
 class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
   final ProviderRepository repository;
@@ -114,7 +163,7 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
     on<CancelBooking>((event, emit) async {
       try {
         await repository.cancelBooking(event.bookingId);
-        emit(ProviderInitial()); 
+        emit(BookingOperationSuccess('Booking cancelled'));
       } catch (e) {
         emit(ProviderError(e.toString()));
       }
@@ -123,6 +172,39 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
     on<AcceptBooking>((event, emit) async {
       try {
         await repository.acceptBooking(event.bookingId);
+        emit(BookingOperationSuccess('Booking accepted'));
+      } catch (e) {
+        emit(ProviderError(e.toString()));
+      }
+    });
+
+    on<UpdateBookingStatusEvent>((event, emit) async {
+      try {
+        await repository.updateBookingStatus(event.bookingId, event.newStatus);
+        emit(BookingOperationSuccess('Status updated to ${event.newStatus}'));
+      } catch (e) {
+        emit(ProviderError(e.toString()));
+      }
+    });
+
+    on<EditBookingEvent>((event, emit) async {
+      try {
+        final data = <String, dynamic>{};
+        if (event.notes != null) data['notes'] = event.notes;
+        if (event.scheduledDate != null) {
+          data['scheduledDate'] = Timestamp.fromDate(event.scheduledDate!);
+        }
+        await repository.updateBooking(event.bookingId, data);
+        emit(BookingOperationSuccess('Booking updated'));
+      } catch (e) {
+        emit(ProviderError(e.toString()));
+      }
+    });
+
+    on<DeleteBookingEvent>((event, emit) async {
+      try {
+        await repository.cancelBooking(event.bookingId);
+        emit(BookingOperationSuccess('Booking deleted'));
       } catch (e) {
         emit(ProviderError(e.toString()));
       }
@@ -133,7 +215,6 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
       try {
         final profile = await repository.getProviderProfile(event.providerId);
         if (profile != null) {
-          // Listen to bookings stream
           repository.getBookingsStream(event.providerId, 'provider').listen((bookings) {
             add(UpdateBookings(bookings));
           });
@@ -153,10 +234,15 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
       }
     });
 
-    // Handle creating a new booking in Firestore
     on<CreateBookingEvent>((event, emit) async {
       try {
-        await repository.bookProvider(event.providerId, event.serviceName, event.amount);
+        await repository.bookProvider(
+          event.providerId,
+          event.serviceName,
+          event.amount,
+          notes: event.notes,
+          scheduledDate: event.scheduledDate,
+        );
         emit(BookingSuccess());
       } catch (e) {
         emit(ProviderError(e.toString()));

@@ -3,6 +3,7 @@ import 'package:skillconnect/domain/entities/provider_entity.dart';
 import 'package:skillconnect/domain/entities/booking_entity.dart';
 import 'package:skillconnect/domain/repositories/provider_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProviderRepositoryImpl implements ProviderRepository {
   final FirebaseRemoteDataSource remoteDataSource;
@@ -16,8 +17,8 @@ class ProviderRepositoryImpl implements ProviderRepository {
   }
 
   @override
-  Future<void> bookProvider(String providerId, String serviceId, int amount) async {
-    final uid = _getClientUid();
+  Future<void> bookProvider(String providerId, String serviceId, int amount, {String notes = '', DateTime? scheduledDate}) async {
+    final uid = _auth.currentUser?.uid ?? '';
     final bookingData = {
       'clientId': uid,
       'providerId': providerId,
@@ -25,19 +26,11 @@ class ProviderRepositoryImpl implements ProviderRepository {
       'totalAmount': amount,
       'depositAmount': amount.toDouble(),
       'bookingDate': DateTime.now(),
-      'status': 'confirmed',
+      'scheduledDate': scheduledDate != null ? Timestamp.fromDate(scheduledDate) : null,
+      'status': 'pending',
+      'notes': notes,
     };
     await remoteDataSource.createBooking(bookingData);
-  }
-
-  String _getClientUid() {
-    // Import firebase_auth to get current user
-    try {
-      final user = _auth.currentUser;
-      return user?.uid ?? '';
-    } catch (_) {
-      return '';
-    }
   }
 
   @override
@@ -47,7 +40,17 @@ class ProviderRepositoryImpl implements ProviderRepository {
 
   @override
   Future<void> acceptBooking(String bookingId) async {
-    await remoteDataSource.updateBookingStatus(bookingId, 'confirmed');
+    await remoteDataSource.updateBookingStatus(bookingId, 'accepted');
+  }
+
+  @override
+  Future<void> updateBookingStatus(String bookingId, String status) async {
+    await remoteDataSource.updateBookingStatus(bookingId, status);
+  }
+
+  @override
+  Future<void> updateBooking(String bookingId, Map<String, dynamic> data) async {
+    await remoteDataSource.updateBooking(bookingId, data);
   }
 
   @override
