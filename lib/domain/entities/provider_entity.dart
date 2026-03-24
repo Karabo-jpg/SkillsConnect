@@ -19,6 +19,17 @@ class UserEntity extends Equatable {
   List<Object?> get props => [uid, email, displayName, photoUrl, userType];
 }
 
+class ProviderEntity extends Equatable {
+  final String providerId;
+  final String businessName;
+  final String bio;
+  final double rating;
+  final int ratingCount;
+  final List<String> portfolioImages;
+  final double baseRate;
+  final String category;
+  final double totalEarnings;
+
   const ProviderEntity({
     required this.providerId,
     required this.businessName,
@@ -28,6 +39,7 @@ class UserEntity extends Equatable {
     required this.portfolioImages,
     required this.baseRate,
     required this.category,
+    this.totalEarnings = 0.0,
   });
 
   @override
@@ -40,5 +52,6 @@ class UserEntity extends Equatable {
         portfolioImages,
         baseRate,
         category,
+        totalEarnings,
       ];
 }

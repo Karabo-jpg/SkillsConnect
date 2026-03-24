@@ -49,6 +49,17 @@ class UpdateBookings extends ProviderEvent {
   List<Object?> get props => [bookings];
 }
 
+/// Event to create a new booking in Firestore
+class CreateBookingEvent extends ProviderEvent {
+  final String providerId;
+  final String serviceName;
+  final int amount;
+  CreateBookingEvent({required this.providerId, required this.serviceName, required this.amount});
+
+  @override
+  List<Object?> get props => [providerId, serviceName, amount];
+}
+
 // States
 abstract class ProviderState extends Equatable {
   @override
@@ -80,6 +91,9 @@ class DashboardLoaded extends ProviderState {
   @override
   List<Object?> get props => [profile, bookings];
 }
+
+/// State emitted when a booking is successfully created
+class BookingSuccess extends ProviderState {}
 
 // Bloc
 class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
@@ -135,6 +149,16 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
       if (state is DashboardLoaded) {
         final currentState = state as DashboardLoaded;
         emit(DashboardLoaded(profile: currentState.profile, bookings: event.bookings));
+      }
+    });
+
+    // Handle creating a new booking in Firestore
+    on<CreateBookingEvent>((event, emit) async {
+      try {
+        await repository.bookProvider(event.providerId, event.serviceName, event.amount);
+        emit(BookingSuccess());
+      } catch (e) {
+        emit(ProviderError(e.toString()));
       }
     });
   }

@@ -14,7 +14,7 @@ SkillConnect is a mobile application developed with Flutter and Firebase designe
   - Order management tracking.
   - Portfolio management.
 - **Backend**:
-  - Firebase Authentication (Email/Password, Google).
+  - Firebase Authentication (Email/Password).
   - Cloud Firestore for real-time data management.
   - Secure data access via Firebase Security Rules.
 
@@ -49,7 +49,7 @@ The app follows **Flutter Clean Architecture** to ensure scalability and maintai
     - Create a new Firebase project in the [Firebase Console](https://console.firebase.google.com/).
     - Add an Android app and download `google-services.json`. Place it in `android/app/`.
     - Add an iOS app and download `GoogleService-Info.plist`. Place it in `ios/Runner/`.
-    - Enable **Email/Password** and **Google** authentication in the Firebase Auth section.
+    - Enable **Email/Password** authentication in the Firebase Auth section.
     - Create a **Firestore Database** and apply the rules from `firestore.rules`.
 
 4.  **Run the App**:

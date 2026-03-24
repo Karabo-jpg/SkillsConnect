@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/presentation/pages/provider_profile_page.dart';
+import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
+import 'package:skillconnect/domain/entities/provider_entity.dart';
 
-class SearchResultsPage extends StatelessWidget {
+class SearchResultsPage extends StatefulWidget {
   final String category;
 
   const SearchResultsPage({super.key, required this.category});
+
+  @override
+  State<SearchResultsPage> createState() => _SearchResultsPageState();
+}
+
+class _SearchResultsPageState extends State<SearchResultsPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<ProviderBloc>().add(LoadProvidersByCategory(widget.category.toLowerCase()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,39 +32,43 @@ class SearchResultsPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Results: $category',
+          'Results: ${widget.category}',
           style: const TextStyle(
             color: Color(0xFFE67E22),
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20.0),
-        children: const [
-          _ProviderResultCard(
-            name: 'Faith\'s Stitch Studio',
-            price: '100,000 UGX',
-          ),
-          SizedBox(height: 20),
-          _ProviderResultCard(
-            name: 'Juliet Fashion',
-            price: '150,000 UGX',
-          ),
-        ],
+      body: BlocBuilder<ProviderBloc, ProviderState>(
+        builder: (context, state) {
+          if (state is ProviderLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is ProviderLoaded) {
+            if (state.providers.isEmpty) {
+              return const Center(child: Text('No providers found in this category.'));
+            }
+            return ListView.separated(
+              padding: const EdgeInsets.all(20.0),
+              itemCount: state.providers.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                return _ProviderResultCard(provider: state.providers[index]);
+              },
+            );
+          } else if (state is ProviderError) {
+            return Center(child: Text('Error: ${state.message}'));
+          }
+          return const Center(child: Text('Search for services'));
+        },
       ),
     );
   }
 }
 
 class _ProviderResultCard extends StatelessWidget {
-  final String name;
-  final String price;
+  final ProviderEntity provider;
 
-  const _ProviderResultCard({
-    required this.name,
-    required this.price,
-  });
+  const _ProviderResultCard({required this.provider});
 
   @override
   Widget build(BuildContext context) {
@@ -72,11 +90,14 @@ class _ProviderResultCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  provider.businessName,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(width: 4),
@@ -85,7 +106,7 @@ class _ProviderResultCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Starting from $price',
+            'Starting from ${provider.baseRate.toStringAsFixed(0)} UGX',
             style: TextStyle(color: Colors.grey[600]),
           ),
           const SizedBox(height: 16),
@@ -96,7 +117,7 @@ class _ProviderResultCard extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ProviderProfilePage(),
+                    builder: (context) => ProviderProfilePage(provider: provider),
                   ),
                 );
               },

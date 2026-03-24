@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/presentation/pages/provider_profile_page.dart';
+import 'package:skillconnect/presentation/pages/search_results_page.dart'; // Added
+import 'package:skillconnect/presentation/blocs/provider_bloc.dart'; // Added
 import 'package:skillconnect/presentation/blocs/settings/settings_bloc.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_event.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_state.dart';
+import 'package:skillconnect/domain/entities/provider_entity.dart'; // Added
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -87,12 +90,25 @@ class _SearchBar extends StatelessWidget {
           ),
         ],
       ),
-      child: const TextField(
-        decoration: InputDecoration(
+      child: TextField(
+        decoration: const InputDecoration(
           hintText: 'Find services...',
           border: InputBorder.none,
           icon: Icon(Icons.search, color: Colors.grey),
         ),
+        onSubmitted: (query) {
+          if (query.isNotEmpty) {
+            // Save the search query to shared preferences
+            context.read<SettingsBloc>().add(SaveSearchQuery(query));
+            // Navigate to search results
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SearchResultsPage(category: query),
+              ),
+            );
+          }
+        },
       ),
     );
   }
@@ -138,9 +154,11 @@ class _CategoryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigation placeholder to SearchResultsPage
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Opening $label...')),
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SearchResultsPage(category: label),
+          ),
         );
       },
       child: Column(

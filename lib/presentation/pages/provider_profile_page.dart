@@ -1,4 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/domain/entities/provider_entity.dart';
+import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
+import 'package:skillconnect/presentation/pages/success_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProviderProfilePage extends StatelessWidget {
   final ProviderEntity provider;
@@ -22,7 +27,7 @@ class ProviderProfilePage extends StatelessWidget {
                   const SizedBox(height: 20),
                   _ProfileBio(bio: provider.bio),
                   const SizedBox(height: 30),
-                  const _BookNowButton(),
+                  _BookNowButton(provider: provider),
                   SizedBox(height: 30),
                   Text(
                     'Portfolio',
@@ -141,32 +146,55 @@ class _ProfileBio extends StatelessWidget {
 }
 
 class _BookNowButton extends StatelessWidget {
-  const _BookNowButton();
+  final ProviderEntity provider;
+  const _BookNowButton({required this.provider});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
+    return BlocListener<ProviderBloc, ProviderState>(
+      listener: (context, state) {
+        if (state is BookingSuccess) {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => const SuccessPage(),
-            ),
+            MaterialPageRoute(builder: (context) => const SuccessPage()),
           );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF16A085),
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        } else if (state is ProviderError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Booking failed: ${state.message}')),
+          );
+        }
+      },
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () {
+            final uid = FirebaseAuth.instance.currentUser?.uid;
+            if (uid == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please log in to book')),
+              );
+              return;
+            }
+
+            // Create booking in Firestore
+            context.read<ProviderBloc>().add(CreateBookingEvent(
+              providerId: provider.providerId,
+              serviceName: provider.category,
+              amount: provider.baseRate.toInt(),
+            ));
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF16A085),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-        ),
-        child: const Text(
-          'Book Now',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          child: const Text(
+            'Book Now',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
         ),
       ),
     );

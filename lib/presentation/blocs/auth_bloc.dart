@@ -89,6 +89,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignUpRequested>(_onSignUpRequested);
     on<AuthSendPasswordResetRequested>(_onAuthSendPasswordResetRequested);
     on<LogOutRequested>(_onLogOutRequested);
+    on<_FetchUserTypeSubEvent>(_onFetchUserType);
   }
 
   Future<void> _onAuthCheckRequested(AuthCheckRequested event, Emitter<AuthState> emit) async {
@@ -96,15 +97,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       repository.user,
       onData: (user) {
         if (user != null) {
-          // We can't use async here easily in forEach without a stream transformer
-          // but we can add a new private event for fetching data if needed.
-          // For simplicity in this session, since authStateChanges is a stream:
-          return Authenticated(user, 'client'); // Default to client, will be updated by Login/SignUp
+          // Trigger user type fetch
+          add(_FetchUserTypeSubEvent(user));
+          return AuthLoading();
         }
         return Unauthenticated();
       },
     );
   }
+
+  // Add this to your events or as a private class
+  // For simplicity, I'll add the handler here
+  Future<void> _onFetchUserType(_FetchUserTypeSubEvent event, Emitter<AuthState> emit) async {
+    final userType = await repository.getUserType(event.user.uid);
+    emit(Authenticated(event.user, userType ?? 'client'));
+  }
+}
+
+class _FetchUserTypeSubEvent extends AuthEvent {
+  final User user;
+  _FetchUserTypeSubEvent(this.user);
+  @override
+  List<Object?> get props => [user];
+}
 
   Future<void> _onLogInRequested(LogInRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());

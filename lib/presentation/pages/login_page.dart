@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/presentation/blocs/auth_bloc.dart';
 import 'package:skillconnect/presentation/pages/register_page.dart';
 
+/// Login page with Email/Password authentication.
+/// Includes forgot password dialog and input validation.
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -19,6 +21,51 @@ class _LoginPageState extends State<LoginPage> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  /// Shows a dialog for password reset via email
+  void _showForgotPasswordDialog() {
+    final resetEmailController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Reset Password'),
+        content: TextField(
+          controller: resetEmailController,
+          decoration: InputDecoration(
+            labelText: 'Enter your email',
+            prefixIcon: const Icon(Icons.email_outlined),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (resetEmailController.text.isNotEmpty) {
+                context.read<AuthBloc>().add(
+                  AuthSendPasswordResetRequested(resetEmailController.text),
+                );
+                Navigator.pop(dialogContext);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Password reset email sent!')),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFE67E22),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Send Reset Link'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -75,13 +122,16 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              const Align(
+              Align(
                 alignment: Alignment.centerRight,
                 child: Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text(
-                    'Forgot Password?',
-                    style: TextStyle(color: Color(0xFFE67E22), fontWeight: FontWeight.w600),
+                  padding: const EdgeInsets.only(top: 8),
+                  child: GestureDetector(
+                    onTap: _showForgotPasswordDialog,
+                    child: const Text(
+                      'Forgot Password?',
+                      style: TextStyle(color: Color(0xFFE67E22), fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
               ),
@@ -100,6 +150,12 @@ class _LoginPageState extends State<LoginPage> {
                   }
                   return ElevatedButton(
                     onPressed: () {
+                      if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter email and password')),
+                        );
+                        return;
+                      }
                       context.read<AuthBloc>().add(
                         LogInRequested(_emailController.text, _passwordController.text),
                       );
@@ -115,31 +171,6 @@ class _LoginPageState extends State<LoginPage> {
                     child: const Text('Sign In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   );
                 },
-              ),
-              const SizedBox(height: 24),
-              const Row(
-                children: [
-                   Expanded(child: Divider()),
-                   Padding(
-                     padding: EdgeInsets.symmetric(horizontal: 16),
-                     child: Text('OR', style: TextStyle(color: Colors.grey)),
-                   ),
-                   Expanded(child: Divider()),
-                ],
-              ),
-              const SizedBox(height: 24),
-              OutlinedButton.icon(
-                onPressed: () {
-                  // Google Sign In Placeholder
-                },
-                icon: const Icon(Icons.login),
-                label: const Text('Sign in with Google'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
               ),
               const SizedBox(height: 24),
               Row(

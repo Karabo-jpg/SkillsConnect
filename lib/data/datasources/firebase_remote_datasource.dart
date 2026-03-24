@@ -51,28 +51,19 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
     double? baseRate,
     String? bio,
   }) async {
-    // NUCLEAR PRINT: This MUST show up in the terminal if the button is working
-    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-    print('!!! SIGNUP STARTED FOR: $email');
-    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-    dev.log('SIGNUP: Starting Auth for $email', name: 'SkillConnect');
-    
     try {
-      dev.log('SIGNUP: Calling createUserWithEmailAndPassword (20s timeout)...', name: 'SkillConnect');
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       ).timeout(
         const Duration(seconds: 20),
         onTimeout: () {
-          dev.log('SIGNUP: ERROR - Firebase Auth timed out!', name: 'SkillConnect');
-          throw Exception('Auth Timeout');
+          throw Exception('Authentication timed out. Please try again.');
         },
       );
 
       if (credential.user != null) {
         final uid = credential.user!.uid;
-        dev.log('SIGNUP: Auth Success. UID: $uid', name: 'SkillConnect');
         
         final userData = {
           'uid': uid,
@@ -83,18 +74,14 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
           'balance': 0,
         };
 
-        dev.log('SIGNUP: Writing to users collection (15s timeout)...', name: 'SkillConnect');
         await _firestore.collection('users').doc(uid).set(userData).timeout(
           const Duration(seconds: 15),
           onTimeout: () {
-            dev.log('SIGNUP: ERROR - Users collection write timed out!', name: 'SkillConnect');
-            throw Exception('Firestore Timeout');
+            throw Exception('Database write timed out. Please try again.');
           },
         );
-        dev.log('SIGNUP: Users collection write successful', name: 'SkillConnect');
 
         if (userType == 'provider') {
-          dev.log('SIGNUP: Writing to providers collection (15s timeout)...', name: 'SkillConnect');
           await _firestore.collection('providers').doc(uid).set({
             'pid': uid,
             'businessName': businessName ?? '',
@@ -109,18 +96,14 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
           }).timeout(
             const Duration(seconds: 15),
             onTimeout: () {
-              dev.log('SIGNUP: ERROR - Providers collection write timed out!', name: 'SkillConnect');
-              throw Exception('Firestore Timeout (Provider)');
+              throw Exception('Database write timed out. Please try again.');
             },
           );
-          dev.log('SIGNUP: Providers collection write successful', name: 'SkillConnect');
         }
         
         return credential.user;
       }
     } catch (e) {
-      dev.log('SIGNUP: CRITICAL ERROR: $e', name: 'SkillConnect', error: e);
-      print('!!! SIGNUP FAILED: $e');
       rethrow;
     }
     return null;
