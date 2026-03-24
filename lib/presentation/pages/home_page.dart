@@ -19,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    context.read<ProviderBloc>().add(LoadProvidersByCategory('tailoring'));
+    context.read<ProviderBloc>().add(LoadProvidersByCategory('Tailoring'));
   }
 
   @override
