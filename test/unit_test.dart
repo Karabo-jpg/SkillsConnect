@@ -6,14 +6,15 @@ void main() {
   group('ProviderModel Tests', () {
     test('should return a valid model from JSON', () {
       final Map<String, dynamic> jsonMap = {
-        'providerId': '123',
-        'name': 'Faith',
+        'pid': '123',
+        'businessName': 'Faith',
         'bio': 'Passionate tailor',
         'rating': 4.9,
         'ratingCount': 120,
         'portfolioImages': ['img1.png', 'img2.png'],
-        'basePrice': 50000,
+        'baseRate': 50000.0,
         'category': 'Tailoring',
+        'totalEarnings': 150000.0,
       };
 
       final result = ProviderModel.fromJson(jsonMap);
@@ -26,19 +27,20 @@ void main() {
     test('should return a valid JSON map from model', () {
       const model = ProviderModel(
         providerId: '123',
-        name: 'Faith',
+        businessName: 'Faith',
         bio: 'Passionate tailor',
         rating: 4.9,
         ratingCount: 120,
-        portfolioImages: ['img1.png'],
-        basePrice: 50000,
+        portfolioImages: const ['img1.png'],
+        baseRate: 50000.0,
         category: 'Tailoring',
+        totalEarnings: 150000.0,
       );
 
       final result = model.toJson();
 
-      expect(result['providerId'], '123');
-      expect(result['basePrice'], 50000);
+      expect(result['pid'], '123');
+      expect(result['baseRate'], 50000.0);
     });
   });
 

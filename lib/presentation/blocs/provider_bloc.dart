@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:skillconnect/domain/entities/provider_entity.dart';
+import 'package:skillconnect/domain/entities/booking_entity.dart';
 import 'package:skillconnect/domain/repositories/provider_repository.dart';
 
 // Events

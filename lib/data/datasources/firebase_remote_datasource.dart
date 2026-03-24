@@ -2,6 +2,7 @@ import 'dart:developer' as dev;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:skillconnect/data/models/provider_model.dart';
+import 'package:skillconnect/data/models/booking_model.dart';
 
 abstract class FirebaseRemoteDataSource {
   Future<User?> signInWithEmail(String email, String password);

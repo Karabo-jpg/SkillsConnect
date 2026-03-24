@@ -1,4 +1,5 @@
 import 'package:skillconnect/domain/entities/provider_entity.dart';
+import 'package:skillconnect/domain/entities/booking_entity.dart';
 
 abstract class ProviderRepository {
   Future<List<ProviderEntity>> getProvidersByCategory(String category);

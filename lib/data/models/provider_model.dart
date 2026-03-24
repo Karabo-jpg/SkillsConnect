@@ -40,18 +40,20 @@ class ProviderModel extends ProviderEntity {
     required super.portfolioImages,
     required super.baseRate,
     required super.category,
+    required super.totalEarnings,
   });
 
   factory ProviderModel.fromJson(Map<String, dynamic> json) {
     return ProviderModel(
-      providerId: json['pid'] ?? '',
-      businessName: json['businessName'] ?? '',
+      providerId: json['pid'] ?? json['providerId'] ?? '',
+      businessName: json['businessName'] ?? json['name'] ?? '',
       bio: json['bio'] ?? '',
       rating: (json['rating'] ?? 0.0).toDouble(),
       ratingCount: json['ratingCount'] ?? 0,
       portfolioImages: List<String>.from(json['portfolioImages'] ?? []),
-      baseRate: (json['baseRate'] ?? 0.0).toDouble(),
+      baseRate: (json['baseRate'] ?? json['basePrice'] ?? 0.0).toDouble(),
       category: json['category'] ?? '',
+      totalEarnings: (json['totalEarnings'] ?? 0.0).toDouble(),
     );
   }
 
@@ -65,6 +67,7 @@ class ProviderModel extends ProviderEntity {
       'portfolioImages': portfolioImages,
       'baseRate': baseRate,
       'category': category,
+      'totalEarnings': totalEarnings,
     };
   }
 }

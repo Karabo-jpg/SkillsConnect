@@ -1,5 +1,6 @@
 import 'package:skillconnect/data/datasources/firebase_remote_datasource.dart';
 import 'package:skillconnect/domain/entities/provider_entity.dart';
+import 'package:skillconnect/domain/entities/booking_entity.dart';
 import 'package:skillconnect/domain/repositories/provider_repository.dart';
 
 class ProviderRepositoryImpl implements ProviderRepository {

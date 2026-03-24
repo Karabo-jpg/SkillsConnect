@@ -112,14 +112,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final userType = await repository.getUserType(event.user.uid);
     emit(Authenticated(event.user, userType ?? 'client'));
   }
-}
-
-class _FetchUserTypeSubEvent extends AuthEvent {
-  final User user;
-  _FetchUserTypeSubEvent(this.user);
-  @override
-  List<Object?> get props => [user];
-}
 
   Future<void> _onLogInRequested(LogInRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
@@ -167,4 +159,11 @@ class _FetchUserTypeSubEvent extends AuthEvent {
   Future<void> _onLogOutRequested(LogOutRequested event, Emitter<AuthState> emit) async {
     await repository.signOut();
   }
+}
+
+class _FetchUserTypeSubEvent extends AuthEvent {
+  final User user;
+  _FetchUserTypeSubEvent(this.user);
+  @override
+  List<Object?> get props => [user];
 }
