@@ -17,7 +17,7 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<ProviderBloc>().add(LoadProvidersByCategory(widget.category.toLowerCase()));
+    context.read<ProviderBloc>().add(LoadProvidersByCategory(widget.category));
   }
 
   @override
