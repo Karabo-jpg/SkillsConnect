@@ -67,4 +67,14 @@ class ProviderRepositoryImpl implements ProviderRepository {
   Stream<List<BookingEntity>> getBookingsStream(String uid, String userType) {
     return remoteDataSource.getBookingsStream(uid, userType);
   }
+
+  @override
+  Future<String> getUserName(String uid) async {
+    return await remoteDataSource.getUserName(uid);
+  }
+
+  @override
+  Future<String> getBusinessName(String providerId) async {
+    return await remoteDataSource.getBusinessName(providerId);
+  }
 }

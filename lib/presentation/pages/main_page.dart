@@ -134,6 +134,7 @@ class _ClientBookingCard extends StatelessWidget {
   const _ClientBookingCard({required this.booking});
 
   Color _statusColor(String status) {
+    if (status == 'confirmed') status = 'accepted';
     switch (status) {
       case 'pending':
         return Colors.orange;
@@ -312,7 +313,9 @@ class _ClientBookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool canEdit = booking.status == 'pending' || booking.status == 'accepted';
+    final bool canEdit = booking.status == 'pending' || booking.status == 'accepted' || booking.status == 'confirmed';
+    String displayStatus = booking.status == 'confirmed' ? 'accepted' : booking.status;
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -345,19 +348,25 @@ class _ClientBookingCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(booking.serviceName,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    FutureBuilder<String>(
+                      future: context.read<ProviderBloc>().repository.getBusinessName(booking.providerId),
+                      builder: (context, snapshot) {
+                        final providerName = snapshot.data ?? booking.serviceName;
+                        return Text(providerName,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16));
+                      },
+                    ),
                     const SizedBox(height: 4),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: _statusColor(booking.status).withValues(alpha: 0.1),
+                        color: _statusColor(displayStatus).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        booking.status.toUpperCase(),
+                        displayStatus.toUpperCase(),
                         style: TextStyle(
-                          color: _statusColor(booking.status),
+                          color: _statusColor(displayStatus),
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),

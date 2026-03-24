@@ -250,6 +250,7 @@ class _ProviderBookingCard extends StatelessWidget {
   const _ProviderBookingCard({required this.booking});
 
   Color _statusColor(String status) {
+    if (status == 'confirmed') status = 'accepted'; // legacy mapping
     switch (status) {
       case 'pending': return Colors.orange;
       case 'accepted': return Colors.blue;
@@ -262,7 +263,8 @@ class _ProviderBookingCard extends StatelessWidget {
 
   /// Returns the next action buttons based on current status
   List<Widget> _buildActions(BuildContext context) {
-    switch (booking.status) {
+    String currentStatus = booking.status == 'confirmed' ? 'accepted' : booking.status;
+    switch (currentStatus) {
       case 'pending':
         return [
           _ActionButton(
@@ -320,6 +322,7 @@ class _ProviderBookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String displayStatus = booking.status == 'confirmed' ? 'accepted' : booking.status;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -338,10 +341,10 @@ class _ProviderBookingCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: _statusColor(booking.status).withValues(alpha: 0.1),
+                  color: _statusColor(displayStatus).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.calendar_today, color: _statusColor(booking.status)),
+                child: Icon(Icons.calendar_today, color: _statusColor(displayStatus)),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -350,16 +353,25 @@ class _ProviderBookingCard extends StatelessWidget {
                   children: [
                     Text(booking.serviceName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 4),
+                    // Add FutureBuilder for Client Name
+                    FutureBuilder<String>(
+                      future: context.read<ProviderBloc>().repository.getUserName(booking.clientId),
+                      builder: (context, snapshot) {
+                        final clientName = snapshot.data ?? 'Loading client...';
+                        return Text('Client: $clientName', style: const TextStyle(color: Colors.grey, fontSize: 13));
+                      },
+                    ),
+                    const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: _statusColor(booking.status).withValues(alpha: 0.1),
+                        color: _statusColor(displayStatus).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        booking.status.toUpperCase(),
+                        displayStatus.toUpperCase(),
                         style: TextStyle(
-                          color: _statusColor(booking.status),
+                          color: _statusColor(displayStatus),
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),

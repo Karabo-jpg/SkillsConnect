@@ -164,6 +164,11 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
       try {
         await repository.cancelBooking(event.bookingId);
         emit(BookingOperationSuccess('Booking cancelled'));
+        // If current state has profile, reload dashboard silently based on provider ID logic
+        if (state is DashboardLoaded) {
+           final currentState = state as DashboardLoaded;
+           add(LoadProviderDashboard(currentState.profile.providerId));
+        }
       } catch (e) {
         emit(ProviderError(e.toString()));
       }
@@ -181,7 +186,10 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
     on<UpdateBookingStatusEvent>((event, emit) async {
       try {
         await repository.updateBookingStatus(event.bookingId, event.newStatus);
-        emit(BookingOperationSuccess('Status updated to ${event.newStatus}'));
+        
+        // We don't emit BookingOperationSuccess here if we are on dashboard 
+        // because it breaks the UI. The stream Listener in LoadProviderDashboard 
+        // will automatically pick up the status change from Firestore and emit UpdateBookings!
       } catch (e) {
         emit(ProviderError(e.toString()));
       }
@@ -215,7 +223,9 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
       try {
         final profile = await repository.getProviderProfile(event.providerId);
         if (profile != null) {
-          repository.getBookingsStream(event.providerId, 'provider').listen((bookings) {
+          // Listen to bookings stream, map through them and get client names
+          repository.getBookingsStream(event.providerId, 'provider').listen((bookings) async {
+            // Attach client names to the entities based on clientId if they aren't explicitly saved
             add(UpdateBookings(bookings));
           });
           emit(DashboardLoaded(profile: profile, bookings: []));

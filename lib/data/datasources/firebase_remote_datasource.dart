@@ -27,6 +27,8 @@ abstract class FirebaseRemoteDataSource {
   Stream<List<BookingModel>> getBookingsStream(String uid, String userType);
   Future<void> sendPasswordResetEmail(String email);
   Future<void> updateBooking(String bookingId, Map<String, dynamic> data);
+  Future<String> getUserName(String uid);
+  Future<String> getBusinessName(String providerId);
 }
 
 class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
@@ -177,6 +179,28 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
   @override
   Future<void> updateBooking(String bookingId, Map<String, dynamic> data) async {
     await _firestore.collection('bookings').doc(bookingId).update(data);
+  }
+
+  @override
+  Future<String> getUserName(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists && doc.data() != null) {
+        return doc.data()!['displayName'] ?? 'Unknown Client';
+      }
+    } catch (_) {}
+    return 'Unknown Client';
+  }
+
+  @override
+  Future<String> getBusinessName(String providerId) async {
+    try {
+      final doc = await _firestore.collection('providers').doc(providerId).get();
+      if (doc.exists && doc.data() != null) {
+        return doc.data()!['businessName'] ?? 'Unknown Provider';
+      }
+    } catch (_) {}
+    return 'Unknown Provider';
   }
 
   @override
