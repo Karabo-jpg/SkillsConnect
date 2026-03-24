@@ -154,9 +154,17 @@ class _BookNowButton extends StatelessWidget {
     return BlocListener<ProviderBloc, ProviderState>(
       listener: (context, state) {
         if (state is BookingSuccess) {
+          // Reload providers so they don't disappear
+          context.read<ProviderBloc>().add(LoadProvidersByCategory(provider.category));
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const SuccessPage()),
+            MaterialPageRoute(
+              builder: (context) => SuccessPage(
+                serviceName: provider.category,
+                amount: provider.baseRate.toInt(),
+                providerName: provider.businessName,
+              ),
+            ),
           );
         } else if (state is ProviderError) {
           ScaffoldMessenger.of(context).showSnackBar(

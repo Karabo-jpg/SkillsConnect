@@ -14,13 +14,24 @@ class BookingModel extends BookingEntity {
 
   factory BookingModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    DateTime parsedDate;
+    try {
+      final raw = data['bookingDate'];
+      if (raw is Timestamp) {
+        parsedDate = raw.toDate();
+      } else {
+        parsedDate = DateTime.now();
+      }
+    } catch (_) {
+      parsedDate = DateTime.now();
+    }
     return BookingModel(
       bid: doc.id,
       clientId: data['clientId'] ?? '',
       providerId: data['providerId'] ?? '',
-      serviceName: data['serviceName'] ?? '',
-      bookingDate: (data['bookingDate'] as Timestamp).toDate(),
-      depositAmount: (data['depositAmount'] ?? 0.0).toDouble(),
+      serviceName: data['serviceName'] ?? data['serviceId'] ?? '',
+      bookingDate: parsedDate,
+      depositAmount: (data['depositAmount'] ?? data['totalAmount'] ?? 0.0).toDouble(),
       status: data['status'] ?? 'pending',
     );
   }

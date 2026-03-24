@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 
 class SuccessPage extends StatelessWidget {
-  const SuccessPage({super.key});
+  final String serviceName;
+  final int amount;
+  final String providerName;
+
+  const SuccessPage({
+    super.key,
+    required this.serviceName,
+    required this.amount,
+    required this.providerName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +45,11 @@ class SuccessPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Your deposit of 50,000 UGX is secured via Mobile Money.',
+                Text(
+                  'Your booking for "$serviceName" with $providerName has been confirmed.\n\n'
+                  'Deposit: ${amount.toStringAsFixed(0)} UGX secured via Mobile Money.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
                 ),
                 const SizedBox(height: 50),
                 SizedBox(

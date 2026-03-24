@@ -67,13 +67,16 @@ class _ClientBookingsTab extends StatefulWidget {
 }
 
 class _ClientBookingsTabState extends State<_ClientBookingsTab> {
+  Stream<List<BookingEntity>>? _bookingsStream;
+
   @override
   void initState() {
     super.initState();
-    // Load client bookings stream
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid != null) {
-      context.read<ProviderBloc>().add(LoadProviderDashboard(uid));
+      // Directly listen to client bookings stream
+      final repo = context.read<ProviderBloc>().repository;
+      _bookingsStream = repo.getBookingsStream(uid, 'client');
     }
   }
 
@@ -89,36 +92,41 @@ class _ClientBookingsTabState extends State<_ClientBookingsTab> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: BlocBuilder<ProviderBloc, ProviderState>(
-        builder: (context, state) {
-          if (state is ProviderLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is DashboardLoaded) {
-            if (state.bookings.isEmpty) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.calendar_today, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text('No bookings yet', style: TextStyle(color: Colors.grey, fontSize: 16)),
-                  ],
-                ),
-              );
-            }
-            return ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: state.bookings.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final booking = state.bookings[index];
-                return _BookingCard(booking: booking);
+      body: _bookingsStream == null
+          ? const Center(child: Text('Please log in to view bookings'))
+          : StreamBuilder<List<BookingEntity>>(
+              stream: _bookingsStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                final bookings = snapshot.data ?? [];
+                if (bookings.isEmpty) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.calendar_today, size: 64, color: Colors.grey),
+                        SizedBox(height: 16),
+                        Text('No bookings yet', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                      ],
+                    ),
+                  );
+                }
+                return ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: bookings.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final booking = bookings[index];
+                    return _BookingCard(booking: booking);
+                  },
+                );
               },
-            );
-          }
-          return const Center(child: Text('Loading bookings...'));
-        },
-      ),
+            ),
     );
   }
 }

@@ -2,9 +2,11 @@ import 'package:skillconnect/data/datasources/firebase_remote_datasource.dart';
 import 'package:skillconnect/domain/entities/provider_entity.dart';
 import 'package:skillconnect/domain/entities/booking_entity.dart';
 import 'package:skillconnect/domain/repositories/provider_repository.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProviderRepositoryImpl implements ProviderRepository {
   final FirebaseRemoteDataSource remoteDataSource;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   ProviderRepositoryImpl({required this.remoteDataSource});
 
@@ -15,13 +17,27 @@ class ProviderRepositoryImpl implements ProviderRepository {
 
   @override
   Future<void> bookProvider(String providerId, String serviceId, int amount) async {
+    final uid = _getClientUid();
     final bookingData = {
+      'clientId': uid,
       'providerId': providerId,
-      'serviceId': serviceId,
+      'serviceName': serviceId,
       'totalAmount': amount,
+      'depositAmount': amount.toDouble(),
+      'bookingDate': DateTime.now(),
       'status': 'confirmed',
     };
     await remoteDataSource.createBooking(bookingData);
+  }
+
+  String _getClientUid() {
+    // Import firebase_auth to get current user
+    try {
+      final user = _auth.currentUser;
+      return user?.uid ?? '';
+    } catch (_) {
+      return '';
+    }
   }
 
   @override
