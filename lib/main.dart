@@ -7,6 +7,7 @@ import 'package:skillconnect/presentation/pages/main_page.dart';
 import 'package:skillconnect/presentation/pages/login_page.dart';
 import 'package:skillconnect/presentation/pages/dashboard_page.dart';
 import 'package:skillconnect/presentation/blocs/auth_bloc.dart';
+import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_bloc.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_event.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_state.dart';
