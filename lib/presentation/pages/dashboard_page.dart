@@ -82,12 +82,36 @@ class _DashboardPageState extends State<DashboardPage> {
           },
         );
       case 2:
-        return const Center(child: Text('Support/Info Coming Soon'));
+        return _buildInfoTab(context);
       case 3:
         return const ProfilePage();
       default:
         return const Center(child: Text('Unknown screen'));
     }
+  }
+
+  Widget _buildInfoTab(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(
+        title: const Text('Info & Support', style: TextStyle(color: Color(0xFFE67E22), fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          const ListTile(leading: Icon(Icons.help_outline, color: Color(0xFFE67E22)), title: Text('Help Center'), subtitle: Text('Get help with managing bookings')),
+          const ListTile(leading: Icon(Icons.policy, color: Color(0xFFE67E22)), title: Text('Provider Terms of Service')),
+          const ListTile(leading: Icon(Icons.privacy_tip, color: Color(0xFFE67E22)), title: Text('Privacy Policy')),
+          const ListTile(leading: Icon(Icons.star_border, color: Color(0xFFE67E22)), title: Text('Rate the App')),
+          const SizedBox(height: 40),
+          Center(
+            child: Text('SkillConnect Provider v1.0.0', style: TextStyle(color: Colors.grey.shade500)),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -99,6 +123,15 @@ class _DashboardHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate dynamically based on non-cancelled/completed bookings
+    final double computedBalance = bookings
+        .where((b) => b.status == 'pending' || b.status == 'accepted' || b.status == 'in-progress' || b.status == 'confirmed')
+        .fold<double>(0.0, (sum, b) => sum + b.depositAmount);
+
+    final double completedEarnings = bookings
+        .where((b) => b.status == 'completed')
+        .fold<double>(0.0, (sum, b) => sum + b.depositAmount);
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
@@ -111,7 +144,7 @@ class _DashboardHome extends StatelessWidget {
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFFE67E22)),
             ),
             const SizedBox(height: 20),
-            const _BalanceCard(balance: '0 UGX'),
+            _BalanceCard(balance: '${computedBalance.toStringAsFixed(0)} UGX'),
             const SizedBox(height: 30),
             const Text('Active Bookings', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
@@ -126,7 +159,7 @@ class _DashboardHome extends StatelessWidget {
             _DashboardAction(
               icon: Icons.trending_up,
               title: 'Total Earnings',
-              trailing: '${profile.totalEarnings.toStringAsFixed(0)} UGX',
+              trailing: '${completedEarnings.toStringAsFixed(0)} UGX',
               isPositive: true,
             ),
             const SizedBox(height: 16),
@@ -292,6 +325,17 @@ class _ProviderBookingCard extends StatelessWidget {
       case 'accepted':
         return [
           _ActionButton(
+            label: 'Cancel',
+            color: Colors.red,
+            icon: Icons.cancel,
+            onPressed: () {
+              context.read<ProviderBloc>().add(
+                UpdateBookingStatusEvent(bookingId: booking.bid, newStatus: 'rejected'),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          _ActionButton(
             label: 'Start Work',
             color: Colors.purple,
             icon: Icons.play_arrow,
@@ -304,6 +348,17 @@ class _ProviderBookingCard extends StatelessWidget {
         ];
       case 'in-progress':
         return [
+          _ActionButton(
+            label: 'Cancel',
+            color: Colors.red,
+            icon: Icons.cancel,
+            onPressed: () {
+              context.read<ProviderBloc>().add(
+                UpdateBookingStatusEvent(bookingId: booking.bid, newStatus: 'rejected'),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
           _ActionButton(
             label: 'Mark Complete',
             color: Colors.green,
