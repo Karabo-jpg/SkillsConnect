@@ -403,26 +403,25 @@ class _ClientBookingCard extends StatelessWidget {
           ],
 
           // Action buttons
-          if (canEdit) ...[
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              if (canEdit)
                 TextButton.icon(
                   onPressed: () => _showEditDialog(context),
                   icon: const Icon(Icons.edit, size: 16),
                   label: const Text('Edit'),
                   style: TextButton.styleFrom(foregroundColor: const Color(0xFF16A085)),
                 ),
-                TextButton.icon(
-                  onPressed: () => _showDeleteDialog(context),
-                  icon: const Icon(Icons.delete, size: 16),
-                  label: const Text('Delete'),
-                  style: TextButton.styleFrom(foregroundColor: Colors.red),
-                ),
-              ],
-            ),
-          ],
+              TextButton.icon(
+                onPressed: () => _showDeleteDialog(context),
+                icon: const Icon(Icons.delete, size: 16),
+                label: const Text('Delete'),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+              ),
+            ],
+          ),
         ],
       ),
     );

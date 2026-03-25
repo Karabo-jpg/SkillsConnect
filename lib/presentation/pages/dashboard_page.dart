@@ -123,9 +123,9 @@ class _DashboardHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate dynamically based on non-cancelled/completed bookings
+    // Calculate dynamically based on all non-cancelled bookings
     final double computedBalance = bookings
-        .where((b) => b.status == 'pending' || b.status == 'accepted' || b.status == 'in-progress' || b.status == 'confirmed')
+        .where((b) => b.status != 'rejected')
         .fold<double>(0.0, (sum, b) => sum + b.depositAmount);
 
     final double completedEarnings = bookings
