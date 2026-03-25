@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:skillconnect/presentation/pages/home_page.dart';
+import 'package:skillconnect/presentation/pages/success_page.dart';
 
 void main() {
-  testWidgets('HomePage has a title and categories', (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(home: HomePage()));
+  testWidgets('SuccessPage displays correct booking details', (WidgetTester tester) async {
+    await tester.pumpWidget(const MaterialApp(
+      home: SuccessPage(
+        serviceName: 'Tailoring',
+        amount: 50000,
+        providerName: 'Faith',
+      ),
+    ));
 
-    // Verify SkillConnect title is present
-    expect(find.text('SkillConnect'), findsOneWidget);
+    // Verify Success title
+    expect(find.text('Confirmed!'), findsOneWidget);
 
-    // Verify Categories title is present
-    expect(find.text('Categories'), findsOneWidget);
-
-    // Verify at least one category label
-    expect(find.text('Tailoring'), findsOneWidget);
+    // Verify concatenated service string
+    expect(
+      find.text('Your booking for "Tailoring" with Faith has been confirmed.\n\nDeposit: 50000 UGX secured via Mobile Money.'),
+      findsOneWidget,
+    );
+    
+    // Verify the Done button
+    expect(find.text('Done'), findsOneWidget);
   });
 }
