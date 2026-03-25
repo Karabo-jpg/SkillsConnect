@@ -128,10 +128,6 @@ class _DashboardHome extends StatelessWidget {
         .where((b) => b.status != 'rejected')
         .fold<double>(0.0, (sum, b) => sum + b.depositAmount);
 
-    final double completedEarnings = bookings
-        .where((b) => b.status == 'completed')
-        .fold<double>(0.0, (sum, b) => sum + b.depositAmount);
-
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
@@ -159,7 +155,7 @@ class _DashboardHome extends StatelessWidget {
             _DashboardAction(
               icon: Icons.trending_up,
               title: 'Total Earnings',
-              trailing: '${completedEarnings.toStringAsFixed(0)} UGX',
+              trailing: '${computedBalance.toStringAsFixed(0)} UGX',
               isPositive: true,
             ),
             const SizedBox(height: 16),
