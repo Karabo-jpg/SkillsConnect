@@ -342,6 +342,8 @@ class _ProviderCard extends StatelessWidget {
   }
 }
 
+<<<<<<< HEAD
+=======
 /// Shared bottom navigation bar used on the client home screen.
 ///
 /// Note: navigation index state is managed by the parent [MainPage]
@@ -367,3 +369,4 @@ class _BottomNav extends StatelessWidget {
     );
   }
 }
+>>>>>>> origin/main

@@ -6,6 +6,7 @@ import 'package:skillconnect/presentation/blocs/settings/settings_state.dart';
 
 /// Settings page for managing user preferences.
 /// Persisted via SharedPreferences and restored on app restart.
+// ignore_for_file: unused_local_variable, prefer_const_constructors, prefer_const_literals_to_create_immutables
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -29,108 +30,150 @@ class SettingsPage extends StatelessWidget {
         builder: (context, state) {
           return ListView(
             padding: const EdgeInsets.all(20),
-            children: [
+            children: const [
               // Theme toggle
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.dark_mode, color: Color(0xFFE67E22)),
-                    const SizedBox(width: 16),
-                    const Expanded(
-                      child: Text('Dark Mode', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                    ),
-                    Switch(
-                      value: state.isDarkMode,
-                      activeColor: const Color(0xFFE67E22),
-                      onChanged: (value) {
-                        context.read<SettingsBloc>().add(ToggleTheme(value));
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
+              _ThemeToggle(),
+              SizedBox(height: 16),
               // Last search query display
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: Color(0xFFE67E22)),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Last Search', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 4),
-                          Text(
-                            state.lastSearchQuery ?? 'No recent searches',
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
+              _LastSearchQuery(),
+              SizedBox(height: 16),
               // Onboarding reset
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline, color: Color(0xFFE67E22)),
-                    const SizedBox(width: 16),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('App Version', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                          SizedBox(height: 4),
-                          Text('1.0.0', style: TextStyle(color: Colors.grey)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _OnboardingReset(),
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _ThemeToggle extends StatelessWidget {
+  const _ThemeToggle();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<SettingsBloc>().state;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: const [
+          Icon(Icons.dark_mode, color: Color(0xFFE67E22)),
+          SizedBox(width: 16),
+          Expanded(
+            child: Text('Dark Mode', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          ),
+          _ThemeSwitch(),
+        ],
+      ),
+    );
+  }
+}
+
+class _ThemeSwitch extends StatelessWidget {
+  const _ThemeSwitch();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<SettingsBloc>().state;
+    return Switch(
+      value: state.isDarkMode,
+      activeThumbColor: const Color(0xFFE67E22),
+      onChanged: (value) {
+        context.read<SettingsBloc>().add(ToggleTheme(value));
+      },
+    );
+  }
+}
+
+class _LastSearchQuery extends StatelessWidget {
+  const _LastSearchQuery();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<SettingsBloc>().state;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: const [
+          Icon(Icons.search, color: Color(0xFFE67E22)),
+          SizedBox(width: 16),
+          Expanded(
+            child: _LastSearchText(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LastSearchText extends StatelessWidget {
+  const _LastSearchText();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<SettingsBloc>().state;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Last Search', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
+        Text(
+          state.lastSearchQuery ?? 'No recent searches',
+          style: const TextStyle(color: Colors.grey),
+        ),
+      ],
+    );
+  }
+}
+
+class _OnboardingReset extends StatelessWidget {
+  const _OnboardingReset();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: const [
+          Icon(Icons.info_outline, color: Color(0xFFE67E22)),
+          SizedBox(width: 16),
+          Expanded(
+            child: Text('Reset Onboarding', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          ),
+        ],
       ),
     );
   }

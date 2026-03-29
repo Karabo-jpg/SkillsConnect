@@ -41,6 +41,7 @@ class ProfilePage extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: const TextStyle(fontSize: 16, color: Colors.grey),
                         ),
+                        // Message button is only available on provider profiles.
                       ],
                     );
                   }

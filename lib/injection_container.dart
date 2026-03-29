@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
+    // Chat Feature removed
   // Blocs
   sl.registerFactory(() => AuthBloc(repository: sl()));
   sl.registerFactory(() => ProviderBloc(repository: sl()));

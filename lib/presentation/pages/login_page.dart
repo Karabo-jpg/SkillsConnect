@@ -175,6 +175,14 @@ class _LoginPageState extends State<LoginPage> {
                       SnackBar(content: Text(state.message)),
                     );
                   }
+                  if (state is Authenticated) {
+                    // Navigate based on userType
+                    if (state.userType == 'provider') {
+                      Navigator.pushReplacementNamed(context, '/providerProfile', arguments: state.user.uid);
+                    } else {
+                      Navigator.pushReplacementNamed(context, '/clientProfile', arguments: state.user.uid);
+                    }
+                  }
                 },
                 builder: (context, state) {
                   if (state is AuthLoading) {

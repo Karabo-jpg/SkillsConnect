@@ -6,6 +6,7 @@ import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
 import 'package:skillconnect/presentation/pages/profile_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -67,7 +68,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 bookings: state.bookings,
               );
             } else if (state is ProviderError) {
-              return Center(child: Text('Error: ${state.message}'));
+              return const Center(child: Text('Error: {state.message}'));
             }
             return const Center(child: Text('Loading dashboard...'));
           },
@@ -270,6 +271,16 @@ class _ProviderBookingsTab extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) => _ProviderBookingCard(booking: bookings[index]),
             ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          // TODO: Implement navigation to CreateProductPage
+          Navigator.pushNamed(context, '/createProduct');
+        },
+        icon: const Icon(Icons.add_box_rounded),
+        label: const Text('Create Product/Service'),
+        backgroundColor: const Color(0xFFE67E22),
+        foregroundColor: Colors.white,
+      ),
     );
   }
 }
@@ -404,12 +415,31 @@ class _ProviderBookingCard extends StatelessWidget {
                   children: [
                     Text(booking.serviceName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 4),
-                    // Add FutureBuilder for Client Name
+                    // Add FutureBuilder for Client Name and Message button
                     FutureBuilder<String>(
                       future: context.read<ProviderBloc>().repository.getUserName(booking.clientId),
                       builder: (context, snapshot) {
                         final clientName = snapshot.data ?? 'Loading client...';
-                        return Text('Client: $clientName', style: const TextStyle(color: Colors.grey, fontSize: 13));
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: Text('Client: $clientName', style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                            ),
+                            Builder(
+                              builder: (context) {
+                                final currentUser = FirebaseAuth.instance.currentUser;
+                                if (currentUser == null || currentUser.uid == booking.clientId) {
+                                  return const SizedBox.shrink();
+                                }
+                                return const IconButton(
+                                  icon: Icon(Icons.message, color: Color(0xFFE67E22)),
+                                  tooltip: 'Message Client',
+                                  onPressed: null, // Chat feature removed, button disabled
+                                );
+                              },
+                            ),
+                          ],
+                        );
                       },
                     ),
                     const SizedBox(height: 6),
