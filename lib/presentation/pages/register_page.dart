@@ -228,7 +228,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text('Upload Profile Image (Required)', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12)),
+                const Text('Upload Profile Image (Optional)', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12)),
                 const SizedBox(height: 16),
                 _buildTextField(_businessNameController, 'Business Name', Icons.business_outlined),
                 const SizedBox(height: 16),
@@ -362,10 +362,6 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    if (_userType == 'provider' && _profileImageBase64 == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile image is required for providers')));
-      return;
-    }
 
     context.read<AuthBloc>().add(
       SignUpRequested(
