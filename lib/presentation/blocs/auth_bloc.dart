@@ -47,6 +47,7 @@ class SignUpRequested extends AuthEvent {
   final String? category;
   final double? baseRate;
   final String? bio;
+  final String? profileImageBase64;
 
   SignUpRequested(
     this.email,
@@ -57,10 +58,11 @@ class SignUpRequested extends AuthEvent {
     this.category,
     this.baseRate,
     this.bio,
+    this.profileImageBase64,
   });
 
   @override
-  List<Object?> get props => [email, password, name, userType, businessName, category, baseRate, bio];
+  List<Object?> get props => [email, password, name, userType, businessName, category, baseRate, bio, profileImageBase64];
 }
 
 /// Sends a Firebase password-reset email to [email].
@@ -215,6 +217,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         category: event.category,
         baseRate: event.baseRate,
         bio: event.bio,
+        profileImageBase64: event.profileImageBase64,
       );
       if (user != null) {
         emit(Authenticated(user, event.userType));

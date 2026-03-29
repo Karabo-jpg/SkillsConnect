@@ -4,6 +4,7 @@ import 'package:skillconnect/domain/entities/provider_entity.dart';
 import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
 import 'package:skillconnect/presentation/pages/success_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
 
 class ProviderProfilePage extends StatelessWidget {
   final ProviderEntity provider;
@@ -17,7 +18,7 @@ class ProviderProfilePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const _ProfileHeader(),
+            _ProfileHeader(provider: provider),
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -46,7 +47,8 @@ class ProviderProfilePage extends StatelessWidget {
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader();
+  final ProviderEntity provider;
+  const _ProfileHeader({required this.provider});
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +86,12 @@ class _ProfileHeader extends StatelessWidget {
             child: CircleAvatar(
               radius: 40,
               backgroundColor: Colors.grey[200],
-              child: const Icon(Icons.person, size: 40, color: Colors.grey),
+              backgroundImage: provider.profileImageBase64.isNotEmpty
+                  ? MemoryImage(base64Decode(provider.profileImageBase64))
+                  : null,
+              child: provider.profileImageBase64.isEmpty
+                  ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                  : null,
             ),
           ),
         ),

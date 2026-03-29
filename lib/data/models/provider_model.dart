@@ -41,6 +41,7 @@ class ProviderModel extends ProviderEntity {
     required super.baseRate,
     required super.category,
     required super.totalEarnings,
+    required super.profileImageBase64,
   });
 
   factory ProviderModel.fromJson(Map<String, dynamic> json) {
@@ -54,6 +55,7 @@ class ProviderModel extends ProviderEntity {
       baseRate: (json['baseRate'] ?? json['basePrice'] ?? 0.0).toDouble(),
       category: json['category'] ?? '',
       totalEarnings: (json['totalEarnings'] ?? 0.0).toDouble(),
+      profileImageBase64: json['profileImageBase64'] ?? '',
     );
   }
 
@@ -68,6 +70,7 @@ class ProviderModel extends ProviderEntity {
       'baseRate': baseRate,
       'category': category,
       'totalEarnings': totalEarnings,
+      'profileImageBase64': profileImageBase64,
     };
   }
 }

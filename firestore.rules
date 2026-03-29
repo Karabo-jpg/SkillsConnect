@@ -1,28 +1,39 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow users to read and write their own profile
+    
+    // USERS COLLECTION
+    // Profile: uid, email, displayName, userType, createdAt, balance
     match /users/{userId} {
+      // Users can only read and write their own profile
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
     
-    // Providers can be read by anyone, but only edited by themselves
+    // PROVIDERS COLLECTION
+    // Profile: pid (uid), businessName, category, baseRate, rating, etc.
     match /providers/{providerId} {
+      // Public profile - anyone can read
       allow read: if true;
+      // Only the provider themselves can edit their business profile
       allow write: if request.auth != null && request.auth.uid == providerId;
     }
     
-    // Services are public
-    match /services/{serviceId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Simplified for this project
+    // BOOKINGS COLLECTION
+    // Fields: clientId, providerId, serviceName, status, etc.
+    match /bookings/{bookingId} {
+      // Any authenticated user can create a booking
+      allow create: if request.auth != null;
+      
+      // Only the involved client or provider can handle the booking
+      allow read, update, delete: if request.auth != null && (
+        request.auth.uid == resource.data.clientId || 
+        request.auth.uid == resource.data.providerId
+      );
     }
     
-    // Bookings are private to the client and provider
-    match /bookings/{bookingId} {
-      allow read: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.providerId);
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.providerId);
+    // SAFETY: Deny all other access
+    match /{path=**} {
+      allow read, write: if false;
     }
   }
 }

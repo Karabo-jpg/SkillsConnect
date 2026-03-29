@@ -15,6 +15,7 @@ abstract class FirebaseRemoteDataSource {
     String? category,
     double? baseRate,
     String? bio,
+    String? profileImageBase64,
   });
   Future<String?> getUserType(String uid);
   Future<void> signOut();
@@ -54,6 +55,7 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
     String? category,
     double? baseRate,
     String? bio,
+    String? profileImageBase64,
   }) async {
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
@@ -97,6 +99,7 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
             'verificationStatus': 'pending',
             'portfolioImages': [],
             'totalEarnings': 0.0,
+            'profileImageBase64': profileImageBase64 ?? '',
           }).timeout(
             const Duration(seconds: 15),
             onTimeout: () {

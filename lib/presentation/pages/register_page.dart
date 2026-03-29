@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/presentation/blocs/auth_bloc.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
 
 /// Registration screen for new users.
 ///
@@ -37,6 +40,26 @@ class _RegisterPageState extends State<RegisterPage> {
 
   /// Controls whether the confirm-password field displays plain text.
   bool _obscureConfirmPassword = true;
+
+  File? _profileImage;
+  String? _profileImageBase64;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 250,
+      maxHeight: 250,
+      imageQuality: 50,
+    );
+    if (image != null) {
+      setState(() {
+        _profileImage = File(image.path);
+      });
+      final bytes = await _profileImage!.readAsBytes();
+      _profileImageBase64 = base64Encode(bytes);
+    }
+  }
 
   @override
   void dispose() {
@@ -191,11 +214,23 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                _buildTextField(
-                  _businessNameController,
-                  'Business Name',
-                  Icons.business_outlined,
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey[300],
+                      backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
+                      child: _profileImage == null
+                          ? const Icon(Icons.add_a_photo, size: 40, color: Colors.grey)
+                          : null,
+                    ),
+                  ),
                 ),
+                const SizedBox(height: 8),
+                const Text('Upload Profile Image (Required)', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12)),
+                const SizedBox(height: 16),
+                _buildTextField(_businessNameController, 'Business Name', Icons.business_outlined),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedCategory,
@@ -327,6 +362,11 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    if (_userType == 'provider' && _profileImageBase64 == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile image is required for providers')));
+      return;
+    }
+
     context.read<AuthBloc>().add(
       SignUpRequested(
         _emailController.text,
@@ -340,6 +380,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ? double.tryParse(_baseRateController.text)
             : null,
         bio: _userType == 'provider' ? _bioController.text : null,
+        profileImageBase64: _userType == 'provider' ? _profileImageBase64 : null,
       ),
     );
   }

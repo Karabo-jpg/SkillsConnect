@@ -23,6 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
     String? category,
     double? baseRate,
     String? bio,
+    String? profileImageBase64,
   }) {
     return remoteDataSource.signUpWithEmail(
       email,
@@ -33,6 +34,7 @@ class AuthRepositoryImpl implements AuthRepository {
       category: category,
       baseRate: baseRate,
       bio: bio,
+      profileImageBase64: profileImageBase64,
     );
   }
 
