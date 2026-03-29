@@ -45,11 +45,13 @@ app.*.map.json
 /android/app/release
 
 # Personal / Report Files
-*.docx
-extract_docs.py
-*_output.txt
-sample_report_text.txt
-part1_report_text.txt
-out.txt
-*.png
+/*.docx
+/extract_docs.py
+/*_output.txt
+/sample_report_text.txt
+/part1_report_text.txt
+/out.txt
+# Only ignore PNGs in the root directory (report screenshots)
+/*.png
+
 
