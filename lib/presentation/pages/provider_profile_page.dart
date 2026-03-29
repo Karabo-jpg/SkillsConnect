@@ -1,9 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:skillconnect/domain/entities/provider_entity.dart';
-import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
-import 'package:skillconnect/presentation/pages/success_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:skillconnect/features/chat/presentation/pages/chat_page.dart';
 
 class ProviderProfilePage extends StatelessWidget {
@@ -18,6 +12,7 @@ class ProviderProfilePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+<<<<<<< HEAD
             const _ProfileHeader(),
              Padding(
                padding: const EdgeInsets.all(20.0),
@@ -72,6 +67,29 @@ class ProviderProfilePage extends StatelessWidget {
                  ],
                ),
              ),
+=======
+            _ProfileHeader(provider: provider),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _ProfileNameSection(provider: provider),
+                  const SizedBox(height: 20),
+                  _ProfileBio(bio: provider.bio),
+                  const SizedBox(height: 30),
+                  _BookNowButton(provider: provider),
+                  const SizedBox(height: 30),
+                  const Text(
+                    'Portfolio',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  const _PortfolioGrid(),
+                ],
+              ),
+            ),
+>>>>>>> origin/main
           ],
         ),
       ),
@@ -80,7 +98,8 @@ class ProviderProfilePage extends StatelessWidget {
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader();
+  final ProviderEntity provider;
+  const _ProfileHeader({required this.provider});
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +137,12 @@ class _ProfileHeader extends StatelessWidget {
             child: CircleAvatar(
               radius: 40,
               backgroundColor: Colors.grey[200],
-              child: const Icon(Icons.person, size: 40, color: Colors.grey),
+              backgroundImage: provider.profileImageBase64.isNotEmpty
+                  ? MemoryImage(base64Decode(provider.profileImageBase64))
+                  : null,
+              child: provider.profileImageBase64.isEmpty
+                  ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                  : null,
             ),
           ),
         ),

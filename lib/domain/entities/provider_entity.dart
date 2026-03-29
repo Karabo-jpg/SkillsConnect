@@ -29,6 +29,7 @@ class ProviderEntity extends Equatable {
   final double baseRate;
   final String category;
   final double totalEarnings;
+  final String profileImageBase64;
 
   const ProviderEntity({
     required this.providerId,
@@ -40,6 +41,7 @@ class ProviderEntity extends Equatable {
     required this.baseRate,
     required this.category,
     this.totalEarnings = 0.0,
+    required this.profileImageBase64,
   });
 
   @override
@@ -53,5 +55,6 @@ class ProviderEntity extends Equatable {
         baseRate,
         category,
         totalEarnings,
+        profileImageBase64,
       ];
 }

@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/presentation/blocs/auth_bloc.dart';
+import 'dart:io';
+import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
 
+/// Registration screen for new users.
+///
+/// Supports two account types toggled by a segmented control:
+/// - **Client**: only requires name, email, and password.
+/// - **Provider**: additionally requires business name, service category,
+///   base rate, and a short bio. The extra fields animate in when the
+///   Provider tab is selected.
+///
+/// All validation runs in [_onSignUpPressed] before dispatching
+/// [SignUpRequested] to [AuthBloc].
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -21,6 +34,32 @@ class _RegisterPageState extends State<RegisterPage> {
   String _userType = 'client';
   String _selectedCategory = 'Tailoring';
   final List<String> _categories = ['Tailoring', 'Baking', 'Hair', 'Other'];
+
+  /// Controls whether the password field displays plain text.
+  bool _obscurePassword = true;
+
+  /// Controls whether the confirm-password field displays plain text.
+  bool _obscureConfirmPassword = true;
+
+  File? _profileImage;
+  String? _profileImageBase64;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 250,
+      maxHeight: 250,
+      imageQuality: 50,
+    );
+    if (image != null) {
+      setState(() {
+        _profileImage = File(image.path);
+      });
+      final bytes = await _profileImage!.readAsBytes();
+      _profileImageBase64 = base64Encode(bytes);
+    }
+  }
 
   @override
   void dispose() {
@@ -61,7 +100,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 style: TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 30),
-              // Role Toggle
+              // Role toggle: Client or Provider
               Container(
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
@@ -75,14 +114,18 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: _userType == 'client' ? const Color(0xFFE67E22) : Colors.transparent,
+                            color: _userType == 'client'
+                                ? const Color(0xFFE67E22)
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             'Client',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: _userType == 'client' ? Colors.white : Colors.black54,
+                              color: _userType == 'client'
+                                  ? Colors.white
+                                  : Colors.black54,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -95,14 +138,18 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: _userType == 'provider' ? const Color(0xFFE67E22) : Colors.transparent,
+                            color: _userType == 'provider'
+                                ? const Color(0xFFE67E22)
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             'Provider',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: _userType == 'provider' ? Colors.white : Colors.black54,
+                              color: _userType == 'provider'
+                                  ? Colors.white
+                                  : Colors.black54,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -115,12 +162,49 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 30),
               _buildTextField(_nameController, 'Full Name', Icons.person_outline),
               const SizedBox(height: 16),
-              _buildTextField(_emailController, 'Email', Icons.email_outlined),
+              _buildTextField(
+                _emailController,
+                'Email',
+                Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
               const SizedBox(height: 16),
-              _buildTextField(_passwordController, 'Password', Icons.lock_outline, obscureText: true),
+              // Password field with visibility toggle
+              _buildTextField(
+                _passwordController,
+                'Password',
+                Icons.lock_outline,
+                obscureText: _obscurePassword,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
+                ),
+              ),
               const SizedBox(height: 16),
-              _buildTextField(_confirmPasswordController, 'Confirm Password', Icons.lock_outline, obscureText: true),
-              
+              // Confirm password field with its own visibility toggle
+              _buildTextField(
+                _confirmPasswordController,
+                'Confirm Password',
+                Icons.lock_outline,
+                obscureText: _obscureConfirmPassword,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureConfirmPassword
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () => setState(
+                      () => _obscureConfirmPassword = !_obscureConfirmPassword),
+                ),
+              ),
+
               if (_userType == 'provider') ...[
                 const SizedBox(height: 24),
                 const Divider(),
@@ -130,6 +214,22 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.grey[300],
+                      backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
+                      child: _profileImage == null
+                          ? const Icon(Icons.add_a_photo, size: 40, color: Colors.grey)
+                          : null,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text('Upload Profile Image (Required)', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12)),
+                const SizedBox(height: 16),
                 _buildTextField(_businessNameController, 'Business Name', Icons.business_outlined),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -137,15 +237,29 @@ class _RegisterPageState extends State<RegisterPage> {
                   decoration: InputDecoration(
                     labelText: 'Category',
                     prefixIcon: const Icon(Icons.category_outlined),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                  items: _categories
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                      .toList(),
                   onChanged: (val) => setState(() => _selectedCategory = val!),
                 ),
                 const SizedBox(height: 16),
-                _buildTextField(_baseRateController, 'Base Rate (UGX)', Icons.payments_outlined, keyboardType: TextInputType.number),
+                _buildTextField(
+                  _baseRateController,
+                  'Base Rate (UGX)',
+                  Icons.payments_outlined,
+                  keyboardType: TextInputType.number,
+                ),
                 const SizedBox(height: 16),
-                _buildTextField(_bioController, 'Short Bio', Icons.description_outlined, maxLines: 3),
+                _buildTextField(
+                  _bioController,
+                  'Short Bio',
+                  Icons.description_outlined,
+                  maxLines: 3,
+                ),
               ],
 
               const SizedBox(height: 32),
@@ -173,7 +287,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Sign Up', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Sign Up',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
                   );
                 },
               ),
@@ -184,6 +301,10 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  /// Reusable helper that builds a consistently styled [TextField].
+  ///
+  /// [suffixIcon] is optional and used for password visibility toggles.
+  /// All fields share the same 12 dp rounded border and prefix icon.
   Widget _buildTextField(
     TextEditingController controller,
     String label,
@@ -191,6 +312,7 @@ class _RegisterPageState extends State<RegisterPage> {
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
+    Widget? suffixIcon,
   }) {
     return TextField(
       controller: controller,
@@ -200,6 +322,7 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
+        suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -207,19 +330,40 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  /// Validates all required fields and dispatches [SignUpRequested] to [AuthBloc].
+  ///
+  /// Validation order:
+  /// 1. Required fields (name, email, password) must not be empty.
+  /// 2. Password and confirm-password must match.
+  /// 3. For provider accounts, business name and base rate are also required.
   void _onSignUpPressed() {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _nameController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+    if (_emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _nameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
       return;
     }
 
     if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
       return;
     }
 
-    if (_userType == 'provider' && (_businessNameController.text.isEmpty || _baseRateController.text.isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Provider details are required')));
+    if (_userType == 'provider' &&
+        (_businessNameController.text.isEmpty ||
+            _baseRateController.text.isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Provider details are required')),
+      );
+      return;
+    }
+
+    if (_userType == 'provider' && _profileImageBase64 == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile image is required for providers')));
       return;
     }
 
@@ -229,10 +373,14 @@ class _RegisterPageState extends State<RegisterPage> {
         _passwordController.text,
         _nameController.text,
         userType: _userType,
-        businessName: _userType == 'provider' ? _businessNameController.text : null,
+        businessName:
+            _userType == 'provider' ? _businessNameController.text : null,
         category: _userType == 'provider' ? _selectedCategory : null,
-        baseRate: _userType == 'provider' ? double.tryParse(_baseRateController.text) : null,
+        baseRate: _userType == 'provider'
+            ? double.tryParse(_baseRateController.text)
+            : null,
         bio: _userType == 'provider' ? _bioController.text : null,
+        profileImageBase64: _userType == 'provider' ? _profileImageBase64 : null,
       ),
     );
   }

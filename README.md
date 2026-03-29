@@ -1,80 +1,130 @@
 # SkillConnect
 
-SkillConnect is a mobile application developed with Flutter and Firebase designed to bridge the gap between local service providers and clients. 
+SkillConnect is a Flutter + Firebase mobile application that connects local service providers (tailors, bakers, hair stylists, and more) with clients in their area. Clients can browse verified providers, book services, and track their bookings in real time. Providers get a personal dashboard to manage orders and monitor earnings.
 
-## 🚀 Features
+---
 
-- **Client Side**:
-  - Home Screen with service categories and verified providers.
-  - Advanced search functionality by category.
-  - Detailed provider profiles with portfolios and reviews.
-  - Seamless booking flow with Mobile Money simulation.
-- **Provider Side**:
-  - Personal dashboard showing balance and earnings.
-  - Order management tracking.
-  - Portfolio management.
-- **Backend**:
-  - Firebase Authentication (Email/Password).
-  - Cloud Firestore for real-time data management.
-  - Secure data access via Firebase Security Rules.
+## Screenshots
 
-## 🛠️ Architecture
+| Home Screen | Provider Dashboard |
+|---|---|
+| ![Home Screen](skillconnect_home_screen.png) | ![Provider Dashboard](skillconnect_provider_dashboard.png) |
 
-The app follows **Flutter Clean Architecture** to ensure scalability and maintainability:
-- **Presentation**: UI widgets and BLoC (Business Logic Component) for state management.
-- **Domain**: Business entities and repository interfaces.
-- **Data**: Repository implementations and data sources (Firebase).
+---
 
-## 📦 Getting Started
+## Features
+
+**Client Side**
+- Home screen with service categories and verified provider listings
+- Search and filter providers by category
+- Detailed provider profiles with ratings and portfolio
+- Booking flow with deposit simulation (Mobile Money)
+- SharedPreferences: dark mode toggle and last search query persistence
+
+**Provider Side**
+- Personal dashboard showing balance and total earnings
+- Order and booking management
+- Portfolio management
+
+**Backend**
+- Firebase Authentication: Email/Password sign-in, registration, and password reset
+- Cloud Firestore: real-time CRUD operations across `users`, `providers`, and `bookings`
+- Firebase Security Rules protecting data access by user ownership
+
+---
+
+## Architecture
+
+The app follows **Flutter Clean Architecture** for clear separation of concerns:
+```
+lib/
+├── data/           # Repository implementations, Firebase data sources
+├── domain/         # Business entities and repository interfaces
+├── presentation/   # UI pages, BLoC state management
+│   ├── blocs/      # AuthBloc, ProviderBloc, SettingsBloc
+│   └── pages/      # All screen widgets
+├── injection_container.dart   # Dependency injection setup
+└── main.dart
+```
+
+State management uses the **BLoC pattern** (via `flutter_bloc`). Business logic never sits inside UI widgets; all state changes flow through events and states.
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
-- Flutter SDK (>=3.1.0)
-- Firebase Account
+- Flutter SDK `>=3.1.0` ([install guide](https://docs.flutter.dev/get-started/install))
+- A Firebase account ([console](https://console.firebase.google.com/))
+- Android emulator or physical device (Android 6.0+)
 
 ### Setup Instructions
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repository-url>
-    cd skillconnect
-    ```
+**1. Clone the repository**
+```bash
+git clone https://github.com/Karabo-jpg/SkillsConnect.git
+cd SkillsConnect
+```
 
-2.  **Install Dependencies**:
-    ```bash
-    flutter pub get
-    ```
+**2. Install dependencies**
+```bash
+flutter pub get
+```
 
-3.  **Firebase Configuration**:
-    - Create a new Firebase project in the [Firebase Console](https://console.firebase.google.com/).
-    - Add an Android app and download `google-services.json`. Place it in `android/app/`.
-    - Add an iOS app and download `GoogleService-Info.plist`. Place it in `ios/Runner/`.
-    - Enable **Email/Password** authentication in the Firebase Auth section.
-    - Create a **Firestore Database** and apply the rules from `firestore.rules`.
+**3. Configure Firebase**
 
-4.  **Run the App**:
-    ```bash
-    flutter run
-    ```
+- Go to the [Firebase Console](https://console.firebase.google.com/) and create a new project.
+- Register an **Android** app with package name `com.example.skillconnect`.
+- Download `google-services.json` and place it in `android/app/`.
+- For iOS, download `GoogleService-Info.plist` and place it in `ios/Runner/`.
+- Enable **Email/Password** under Authentication > Sign-in method.
+- Create a **Firestore Database** and copy `firestore.rules` into your Security Rules tab.
 
-## 🧪 Testing
+**4. Run the app**
+```bash
+flutter run
+```
 
-The project includes both unit and widget tests:
-- **Unit Tests**: `test/unit_test.dart` (Model serialization)
-- **Widget Tests**: `test/widget_test.dart` (UI component verification)
+> Run on a physical device or emulator only. Web and desktop builds are not supported.
 
-Run tests using:
+---
+
+## Testing
 ```bash
 flutter test
 ```
 
-## 📊 Database Architecture (ERD)
-
-The database is built on Cloud Firestore with the following collections:
-- `users`: User profiles and account types.
-- `providers`: Professional bios, ratings, and portfolio metadata.
-- `services`: Service offerings and pricing.
-- `bookings`: Transactional records between clients and providers.
+- **Unit tests** (`test/unit_test.dart`): model serialization and business logic
+- **Widget tests** (`test/widget_test.dart`): UI component rendering verification
 
 ---
+
+## Firestore Collections
+
+| Collection | Key Fields |
+|---|---|
+| `users` | `uid`, `email`, `displayName`, `userType`, `createdAt` |
+| `providers` | `uid`, `businessName`, `category`, `hourlyRate`, `rating`, `totalEarnings` |
+| `bookings` | `bid`, `clientId`, `providerId`, `serviceName`, `status`, `depositAmount`, `scheduledDate`, `createdAt` |
+
+---
+
+## Firebase Security Rules
+
+Security rules are defined in `firestore.rules`:
+- Users can only read and write their own profile document.
+- Provider profiles are readable by all authenticated users, writable only by the provider.
+- Bookings are accessible only to the client or provider involved.
+
+---
+
+## Contributing
+
+1. Create a feature branch: `git checkout -b your-name-feature`
+2. Make changes and test on your emulator.
+3. Commit with a clear message and open a Pull Request.
+
+---
+
 *Developed as a Final Project for Mobile Application Development.*

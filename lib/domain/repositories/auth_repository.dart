@@ -11,6 +11,7 @@ abstract class AuthRepository {
     String? category,
     double? baseRate,
     String? bio,
+    String? profileImageBase64,
   });
   Future<String?> getUserType(String uid);
   Future<void> signOut();

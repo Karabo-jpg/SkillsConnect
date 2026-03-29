@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/presentation/pages/provider_profile_page.dart';
 import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
 import 'package:skillconnect/domain/entities/provider_entity.dart';
+import 'dart:convert';
 
 class SearchResultsPage extends StatefulWidget {
   final String category;
@@ -90,21 +91,57 @@ class _ProviderResultCard extends StatelessWidget {
         children: [
           Row(
             children: [
+              if (provider.profileImageBase64.isNotEmpty) ...[
+                CircleAvatar(
+                  radius: 24,
+                  backgroundImage: MemoryImage(base64Decode(provider.profileImageBase64)),
+                ),
+                const SizedBox(width: 12),
+              ] else ...[
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Colors.grey[200],
+                  child: const Icon(Icons.person, color: Colors.grey),
+                ),
+                const SizedBox(width: 12),
+              ],
               Expanded(
-                child: Text(
-                  provider.businessName,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            provider.businessName,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 16),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${provider.rating} (${provider.ratingCount} reviews)',
+                          style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 4),
-              const Icon(Icons.check_circle, color: Colors.green, size: 18),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
           Text(
             'Starting from ${provider.baseRate.toStringAsFixed(0)} UGX',
             style: TextStyle(color: Colors.grey[600]),
