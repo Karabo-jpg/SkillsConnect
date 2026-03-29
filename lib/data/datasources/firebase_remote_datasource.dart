@@ -30,6 +30,7 @@ abstract class FirebaseRemoteDataSource {
   Future<void> updateBooking(String bookingId, Map<String, dynamic> data);
   Future<String> getBusinessName(String providerId);
   Future<void> rateProvider(String providerId, String bookingId, double rating);
+  Future<String> getUserName(String uid);
 }
 
 class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {

@@ -88,7 +88,7 @@ class _ThemeSwitch extends StatelessWidget {
     final state = context.watch<SettingsBloc>().state;
     return Switch(
       value: state.isDarkMode,
-      activeThumbColor: const Color(0xFFE67E22),
+      activeColor: const Color(0xFFE67E22),
       onChanged: (value) {
         context.read<SettingsBloc>().add(ToggleTheme(value));
       },
