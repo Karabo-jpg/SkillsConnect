@@ -5,7 +5,7 @@ import 'package:skillconnect/data/models/booking_model.dart';
 void main() {
   group('ProviderModel Tests', () {
     test('should return a valid model from JSON', () {
-      final Map<String, dynamic> jsonMap = {
+      const Map<String, dynamic> jsonMap = {
         'pid': '123',
         'businessName': 'Faith',
         'bio': 'Passionate tailor',
@@ -31,7 +31,7 @@ void main() {
         bio: 'Passionate tailor',
         rating: 4.9,
         ratingCount: 120,
-        portfolioImages: const ['img1.png'],
+        portfolioImages: ['img1.png'],
         baseRate: 50000.0,
         category: 'Tailoring',
         totalEarnings: 150000.0,
