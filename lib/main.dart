@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skillconnect/presentation/pages/main_page.dart';
 import 'package:skillconnect/presentation/pages/login_page.dart';
 import 'package:skillconnect/presentation/pages/dashboard_page.dart';
+import 'package:skillconnect/presentation/pages/create_product_page.dart';
 import 'package:skillconnect/presentation/blocs/auth_bloc.dart';
 import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_bloc.dart';
@@ -14,9 +15,9 @@ import 'package:skillconnect/presentation/blocs/settings/settings_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await Firebase.initializeApp();
-  
+
   await di.init();
   runApp(const SkillConnectApp());
 }
@@ -83,6 +84,9 @@ class SkillConnectApp extends StatelessWidget {
                 );
               },
             ),
+            routes: {
+              '/createProduct': (context) => const CreateProductPage(),
+            },
           );
         },
       ),
