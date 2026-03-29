@@ -55,7 +55,9 @@ class _HomePageState extends State<HomePage> {
                   color: const Color(0xFF16A085),
                 ),
                 onPressed: () {
-                  context.read<SettingsBloc>().add(ToggleTheme(!state.isDarkMode));
+                  context
+                      .read<SettingsBloc>()
+                      .add(ToggleTheme(!state.isDarkMode));
                 },
               );
             },
@@ -229,7 +231,8 @@ class _RecommendedSection extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: state.providers.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final provider = state.providers[index];
                   return _ProviderCard(provider: provider);
@@ -309,7 +312,8 @@ class _ProviderCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                      const Icon(Icons.check_circle,
+                          color: Colors.green, size: 16),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -328,7 +332,8 @@ class _ProviderCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         provider.rating.toStringAsFixed(1),
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -341,32 +346,3 @@ class _ProviderCard extends StatelessWidget {
     );
   }
 }
-
-<<<<<<< HEAD
-=======
-/// Shared bottom navigation bar used on the client home screen.
-///
-/// Note: navigation index state is managed by the parent [MainPage]
-/// rather than here, so [currentIndex] is fixed at 0.
-class _BottomNav extends StatelessWidget {
-  const _BottomNav();
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFFE67E22),
-      unselectedItemColor: Colors.grey,
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
-      currentIndex: 0,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Bookings'),
-        BottomNavigationBarItem(icon: Icon(Icons.info_outline), label: 'Info'),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
-      ],
-    );
-  }
-}
->>>>>>> origin/main

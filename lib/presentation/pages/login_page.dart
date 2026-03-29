@@ -60,8 +60,8 @@ class _LoginPageState extends State<LoginPage> {
             onPressed: () {
               if (resetEmailController.text.isNotEmpty) {
                 context.read<AuthBloc>().add(
-                  AuthSendPasswordResetRequested(resetEmailController.text),
-                );
+                      AuthSendPasswordResetRequested(resetEmailController.text),
+                    );
                 Navigator.pop(dialogContext);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Password reset email sent!')),
@@ -178,9 +178,12 @@ class _LoginPageState extends State<LoginPage> {
                   if (state is Authenticated) {
                     // Navigate based on userType
                     if (state.userType == 'provider') {
-                      Navigator.pushReplacementNamed(context, '/providerProfile', arguments: state.user.uid);
+                      Navigator.pushReplacementNamed(
+                          context, '/providerProfile',
+                          arguments: state.user.uid);
                     } else {
-                      Navigator.pushReplacementNamed(context, '/clientProfile', arguments: state.user.uid);
+                      Navigator.pushReplacementNamed(context, '/clientProfile',
+                          arguments: state.user.uid);
                     }
                   }
                 },
@@ -200,11 +203,11 @@ class _LoginPageState extends State<LoginPage> {
                         return;
                       }
                       context.read<AuthBloc>().add(
-                        LogInRequested(
-                          _emailController.text,
-                          _passwordController.text,
-                        ),
-                      );
+                            LogInRequested(
+                              _emailController.text,
+                              _passwordController.text,
+                            ),
+                          );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFE67E22),
@@ -216,7 +219,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: const Text(
                       'Sign In',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   );
                 },

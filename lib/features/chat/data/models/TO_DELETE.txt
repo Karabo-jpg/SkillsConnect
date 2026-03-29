@@ -1,0 +1,1 @@
+This folder and its contents are marked for deletion as part of chat feature removal.

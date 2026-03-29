@@ -1,4 +1,10 @@
-import 'package:skillconnect/features/chat/presentation/pages/chat_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skillconnect/domain/entities/provider_entity.dart';
+import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
+
+import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProviderProfilePage extends StatelessWidget {
   final ProviderEntity provider;
@@ -12,62 +18,6 @@ class ProviderProfilePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-<<<<<<< HEAD
-            const _ProfileHeader(),
-             Padding(
-               padding: const EdgeInsets.all(20.0),
-               child: Column(
-                 crossAxisAlignment: CrossAxisAlignment.start,
-                 children: [
-                   _ProfileNameSection(provider: provider),
-                   const SizedBox(height: 20),
-                   _ProfileBio(bio: provider.bio),
-                   const SizedBox(height: 30),
-                   _BookNowButton(provider: provider),
-                   const SizedBox(height: 30),
-                    // Message Button
-                    Builder(
-                      builder: (context) {
-                        final currentUser = FirebaseAuth.instance.currentUser;
-                        if (currentUser == null || currentUser.uid == provider.providerId) {
-                          return const SizedBox.shrink();
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10.0),
-                          child: ElevatedButton.icon(
-                            icon: const Icon(Icons.message),
-                            label: const Text('Message'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFE67E22),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-                            ),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ChatPage(
-                                    otherUserId: provider.providerId,
-                                    otherUserName: provider.businessName,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                   const Text(
-                     'Portfolio',
-                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                   ),
-                   const SizedBox(height: 16),
-                   const _PortfolioGrid(),
-                 ],
-               ),
-             ),
-=======
             _ProfileHeader(provider: provider),
             Padding(
               padding: const EdgeInsets.all(20.0),
@@ -89,7 +39,6 @@ class ProviderProfilePage extends StatelessWidget {
                 ],
               ),
             ),
->>>>>>> origin/main
           ],
         ),
       ),
@@ -238,24 +187,31 @@ class _BookNowButton extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(provider.category, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          Text(provider.category,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
                           Text('${provider.baseRate.toStringAsFixed(0)} UGX',
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE67E22))),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFE67E22))),
                         ],
                       ),
                     ),
                     const SizedBox(height: 16),
 
                     // Date Picker
-                    const Text('Preferred Date', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text('Preferred Date',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () async {
                         final date = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now().add(const Duration(days: 1)),
+                          initialDate:
+                              DateTime.now().add(const Duration(days: 1)),
                           firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                          lastDate:
+                              DateTime.now().add(const Duration(days: 365)),
                         );
                         if (date != null) {
                           setState(() => selectedDate = date);
@@ -269,7 +225,8 @@ class _BookNowButton extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.calendar_today, size: 18, color: Color(0xFFE67E22)),
+                            const Icon(Icons.calendar_today,
+                                size: 18, color: Color(0xFFE67E22)),
                             const SizedBox(width: 8),
                             Text(selectedDate != null
                                 ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
@@ -281,7 +238,8 @@ class _BookNowButton extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // Time Picker
-                    const Text('Preferred Time', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text('Preferred Time',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () async {
@@ -301,7 +259,8 @@ class _BookNowButton extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.access_time, size: 18, color: Color(0xFFE67E22)),
+                            const Icon(Icons.access_time,
+                                size: 18, color: Color(0xFFE67E22)),
                             const SizedBox(width: 8),
                             Text(selectedTime != null
                                 ? selectedTime!.format(context)
@@ -313,14 +272,16 @@ class _BookNowButton extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // Notes
-                    Text('Details (${provider.category})', style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text('Details (${provider.category})',
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     TextField(
                       controller: notesController,
                       maxLines: 3,
                       decoration: InputDecoration(
                         hintText: _getCategoryHint(provider.category),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
                   ],
@@ -338,7 +299,8 @@ class _BookNowButton extends StatelessWidget {
 
                     DateTime? scheduledDateTime;
                     if (selectedDate != null) {
-                      final time = selectedTime ?? const TimeOfDay(hour: 9, minute: 0);
+                      final time =
+                          selectedTime ?? const TimeOfDay(hour: 9, minute: 0);
                       scheduledDateTime = DateTime(
                         selectedDate!.year,
                         selectedDate!.month,
@@ -349,12 +311,12 @@ class _BookNowButton extends StatelessWidget {
                     }
 
                     context.read<ProviderBloc>().add(CreateBookingEvent(
-                      providerId: provider.providerId,
-                      serviceName: provider.category,
-                      amount: provider.baseRate.toInt(),
-                      notes: notesController.text.trim(),
-                      scheduledDate: scheduledDateTime,
-                    ));
+                          providerId: provider.providerId,
+                          serviceName: provider.category,
+                          amount: provider.baseRate.toInt(),
+                          notes: notesController.text.trim(),
+                          scheduledDate: scheduledDateTime,
+                        ));
 
                     Navigator.pop(dialogContext);
                   },
@@ -377,14 +339,21 @@ class _BookNowButton extends StatelessWidget {
     return BlocListener<ProviderBloc, ProviderState>(
       listener: (context, state) {
         if (state is BookingSuccess) {
-          context.read<ProviderBloc>().add(LoadProvidersByCategory(provider.category));
+          context
+              .read<ProviderBloc>()
+              .add(LoadProvidersByCategory(provider.category));
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SuccessPage(
-                serviceName: provider.category,
-                amount: provider.baseRate.toInt(),
-                providerName: provider.businessName,
+              // TODO: Implement SuccessPage or handle booking success UI
+              // builder: (context) => SuccessPage(
+              //   serviceName: provider.category,
+              //   amount: provider.baseRate.toInt(),
+              //   providerName: provider.businessName,
+              // ),
+              builder: (context) => Scaffold(
+                appBar: AppBar(title: const Text('Booking Success')),
+                body: const Center(child: Text('Booking successful!')),
               ),
             ),
           );
@@ -402,7 +371,8 @@ class _BookNowButton extends StatelessWidget {
             backgroundColor: const Color(0xFF16A085),
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           child: const Text('Book Now', style: TextStyle(fontSize: 18)),
         ),

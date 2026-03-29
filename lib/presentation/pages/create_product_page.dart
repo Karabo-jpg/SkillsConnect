@@ -48,6 +48,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
     setState(() => _isSubmitting = true);
     // TODO: Implement Firestore save logic and image upload
     Future.delayed(const Duration(seconds: 1), () {
+      if (!mounted) return;
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

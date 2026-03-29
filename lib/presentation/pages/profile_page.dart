@@ -33,13 +33,15 @@ class ProfilePage extends StatelessWidget {
                         Text(
                           state.user.displayName ?? 'User',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           state.user.email ?? '',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16, color: Colors.grey),
+                          style:
+                              const TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                         // Message button is only available on provider profiles.
                       ],
@@ -60,7 +62,8 @@ class ProfilePage extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SettingsPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const SettingsPage()),
                   );
                 },
               ),
@@ -126,7 +129,9 @@ class _ProfileMenuItem extends StatelessWidget {
           children: [
             Icon(icon, color: const Color(0xFFE67E22)),
             const SizedBox(width: 16),
-            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            Text(title,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             const Spacer(),
             const Icon(Icons.chevron_right, color: Colors.grey),
           ],

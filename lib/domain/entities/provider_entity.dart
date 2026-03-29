@@ -40,7 +40,7 @@ class ProviderEntity extends Equatable {
     required this.portfolioImages,
     required this.baseRate,
     required this.category,
-    this.totalEarnings = 0.0,
+    required this.totalEarnings,
     required this.profileImageBase64,
   });
 
