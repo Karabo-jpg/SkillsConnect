@@ -133,7 +133,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 _buildTextField(_businessNameController, 'Business Name', Icons.business_outlined),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  initialValue: _selectedCategory,
                   decoration: InputDecoration(
                     labelText: 'Category',
                     prefixIcon: const Icon(Icons.category_outlined),

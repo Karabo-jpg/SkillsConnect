@@ -33,9 +33,12 @@ class _MainPageState extends State<MainPage> {
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'Bookings'),
-          BottomNavigationBarItem(icon: Icon(Icons.info_outline), label: 'Info'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_month), label: 'Bookings'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.info_outline), label: 'Info'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline), label: 'Profile'),
         ],
       ),
     );
@@ -85,7 +88,8 @@ class _ClientBookingsTabState extends State<_ClientBookingsTab> {
       appBar: AppBar(
         title: const Text(
           'My Bookings',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE67E22)),
+          style:
+              TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE67E22)),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -107,9 +111,11 @@ class _ClientBookingsTabState extends State<_ClientBookingsTab> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.calendar_today, size: 64, color: Colors.grey),
+                        Icon(Icons.calendar_today,
+                            size: 64, color: Colors.grey),
                         SizedBox(height: 16),
-                        Text('No bookings yet', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                        Text('No bookings yet',
+                            style: TextStyle(color: Colors.grey, fontSize: 16)),
                       ],
                     ),
                   );
@@ -171,15 +177,18 @@ class _ClientBookingCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Date
-                    const Text('Scheduled Date', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text('Scheduled Date',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () async {
                         final date = await showDatePicker(
                           context: context,
-                          initialDate: selectedDate ?? DateTime.now().add(const Duration(days: 1)),
+                          initialDate: selectedDate ??
+                              DateTime.now().add(const Duration(days: 1)),
                           firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(const Duration(days: 365)),
+                          lastDate:
+                              DateTime.now().add(const Duration(days: 365)),
                         );
                         if (date != null) setState(() => selectedDate = date);
                       },
@@ -191,7 +200,8 @@ class _ClientBookingCard extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.calendar_today, size: 18, color: Color(0xFFE67E22)),
+                            const Icon(Icons.calendar_today,
+                                size: 18, color: Color(0xFFE67E22)),
                             const SizedBox(width: 8),
                             Text(selectedDate != null
                                 ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
@@ -203,13 +213,15 @@ class _ClientBookingCard extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // Time
-                    const Text('Scheduled Time', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text('Scheduled Time',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () async {
                         final time = await showTimePicker(
                           context: context,
-                          initialTime: selectedTime ?? const TimeOfDay(hour: 9, minute: 0),
+                          initialTime: selectedTime ??
+                              const TimeOfDay(hour: 9, minute: 0),
                         );
                         if (time != null) setState(() => selectedTime = time);
                       },
@@ -221,7 +233,8 @@ class _ClientBookingCard extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.access_time, size: 18, color: Color(0xFFE67E22)),
+                            const Icon(Icons.access_time,
+                                size: 18, color: Color(0xFFE67E22)),
                             const SizedBox(width: 8),
                             Text(selectedTime != null
                                 ? selectedTime!.format(context)
@@ -233,14 +246,16 @@ class _ClientBookingCard extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // Notes
-                    const Text('Notes', style: TextStyle(fontWeight: FontWeight.w600)),
+                    const Text('Notes',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     TextField(
                       controller: notesController,
                       maxLines: 3,
                       decoration: InputDecoration(
                         hintText: 'Update your booking details...',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
                   ],
@@ -255,17 +270,21 @@ class _ClientBookingCard extends StatelessWidget {
                   onPressed: () {
                     DateTime? scheduledDateTime;
                     if (selectedDate != null) {
-                      final time = selectedTime ?? const TimeOfDay(hour: 9, minute: 0);
+                      final time =
+                          selectedTime ?? const TimeOfDay(hour: 9, minute: 0);
                       scheduledDateTime = DateTime(
-                        selectedDate!.year, selectedDate!.month, selectedDate!.day,
-                        time.hour, time.minute,
+                        selectedDate!.year,
+                        selectedDate!.month,
+                        selectedDate!.day,
+                        time.hour,
+                        time.minute,
                       );
                     }
                     context.read<ProviderBloc>().add(EditBookingEvent(
-                      bookingId: booking.bid,
-                      notes: notesController.text.trim(),
-                      scheduledDate: scheduledDateTime,
-                    ));
+                          bookingId: booking.bid,
+                          notes: notesController.text.trim(),
+                          scheduledDate: scheduledDateTime,
+                        ));
                     Navigator.pop(dialogContext);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Booking updated!')),
@@ -290,7 +309,8 @@ class _ClientBookingCard extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Delete Booking'),
-        content: const Text('Are you sure you want to delete this booking? This cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this booking? This cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
@@ -304,7 +324,8 @@ class _ClientBookingCard extends StatelessWidget {
                 const SnackBar(content: Text('Booking deleted')),
               );
             },
-            child: const Text('Yes, Delete', style: TextStyle(color: Colors.red)),
+            child:
+                const Text('Yes, Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -313,9 +334,12 @@ class _ClientBookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool canEdit = booking.status == 'pending' || booking.status == 'accepted' || booking.status == 'confirmed';
-    String displayStatus = booking.status == 'confirmed' ? 'accepted' : booking.status;
-    
+    final bool canEdit = booking.status == 'pending' ||
+        booking.status == 'accepted' ||
+        booking.status == 'confirmed';
+    String displayStatus =
+        booking.status == 'confirmed' ? 'accepted' : booking.status;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -341,7 +365,8 @@ class _ClientBookingCard extends StatelessWidget {
                   color: const Color(0xFFE67E22).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.calendar_today, color: Color(0xFFE67E22)),
+                child:
+                    const Icon(Icons.calendar_today, color: Color(0xFFE67E22)),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -349,18 +374,25 @@ class _ClientBookingCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     FutureBuilder<String>(
-                      future: context.read<ProviderBloc>().repository.getBusinessName(booking.providerId),
+                      future: context
+                          .read<ProviderBloc>()
+                          .repository
+                          .getBusinessName(booking.providerId),
                       builder: (context, snapshot) {
-                        final providerName = snapshot.data ?? booking.serviceName;
+                        final providerName =
+                            snapshot.data ?? booking.serviceName;
                         return Text(providerName,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16));
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16));
                       },
                     ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: _statusColor(displayStatus).withValues(alpha: 0.1),
+                        color:
+                            _statusColor(displayStatus).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -376,7 +408,8 @@ class _ClientBookingCard extends StatelessWidget {
                 ),
               ),
               Text('${booking.depositAmount.toStringAsFixed(0)} UGX',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE67E22))),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Color(0xFFE67E22))),
             ],
           ),
 
@@ -412,7 +445,8 @@ class _ClientBookingCard extends StatelessWidget {
                   onPressed: () => _showEditDialog(context),
                   icon: const Icon(Icons.edit, size: 16),
                   label: const Text('Edit'),
-                  style: TextButton.styleFrom(foregroundColor: const Color(0xFF16A085)),
+                  style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFF16A085)),
                 ),
               TextButton.icon(
                 onPressed: () => _showDeleteDialog(context),
@@ -439,7 +473,8 @@ class _InfoTab extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'About SkillConnect',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE67E22)),
+          style:
+              TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE67E22)),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -451,7 +486,10 @@ class _InfoTab extends StatelessWidget {
           children: [
             Text(
               'SkillConnect',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFFE67E22)),
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFE67E22)),
             ),
             SizedBox(height: 12),
             Text(
@@ -460,13 +498,23 @@ class _InfoTab extends StatelessWidget {
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             SizedBox(height: 24),
-            Text('How It Works', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('How It Works',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 12),
-            _InfoItem(icon: Icons.search, title: 'Browse', description: 'Search for service providers by category'),
+            _InfoItem(
+                icon: Icons.search,
+                title: 'Browse',
+                description: 'Search for service providers by category'),
             SizedBox(height: 12),
-            _InfoItem(icon: Icons.person, title: 'Connect', description: 'View provider profiles, ratings, and portfolios'),
+            _InfoItem(
+                icon: Icons.person,
+                title: 'Connect',
+                description: 'View provider profiles, ratings, and portfolios'),
             SizedBox(height: 12),
-            _InfoItem(icon: Icons.calendar_today, title: 'Book', description: 'Book services securely with Mobile Money'),
+            _InfoItem(
+                icon: Icons.calendar_today,
+                title: 'Book',
+                description: 'Book services securely with Mobile Money'),
             SizedBox(height: 24),
             Text('Version 1.0.0', style: TextStyle(color: Colors.grey)),
           ],
@@ -481,7 +529,8 @@ class _InfoItem extends StatelessWidget {
   final String title;
   final String description;
 
-  const _InfoItem({required this.icon, required this.title, required this.description});
+  const _InfoItem(
+      {required this.icon, required this.title, required this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -500,7 +549,9 @@ class _InfoItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16)),
               Text(description, style: const TextStyle(color: Colors.grey)),
             ],
           ),

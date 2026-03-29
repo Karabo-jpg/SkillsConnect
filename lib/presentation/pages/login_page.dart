@@ -138,10 +138,18 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 24),
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
-                   if (state is AuthError) {
+                  if (state is AuthError) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(state.message)),
                     );
+                  }
+                  if (state is Authenticated) {
+                    // Navigate based on userType
+                    if (state.userType == 'provider') {
+                      Navigator.pushReplacementNamed(context, '/providerProfile', arguments: state.user.uid);
+                    } else {
+                      Navigator.pushReplacementNamed(context, '/clientProfile', arguments: state.user.uid);
+                    }
                   }
                 },
                 builder: (context, state) {

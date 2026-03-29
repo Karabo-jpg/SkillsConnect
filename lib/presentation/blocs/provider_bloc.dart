@@ -103,23 +103,30 @@ class DeleteBookingEvent extends ProviderEvent {
 
 // States
 abstract class ProviderState extends Equatable {
+  const ProviderState();
+
   @override
   List<Object?> get props => [];
 }
 
-class ProviderInitial extends ProviderState {}
-class ProviderLoading extends ProviderState {}
+class ProviderInitial extends ProviderState {
+  const ProviderInitial();
+}
+
+class ProviderLoading extends ProviderState {
+  const ProviderLoading();
+}
+
 class ProviderLoaded extends ProviderState {
   final List<ProviderEntity> providers;
-  ProviderLoaded(this.providers);
-
+  const ProviderLoaded(this.providers);
   @override
   List<Object?> get props => [providers];
 }
+
 class ProviderError extends ProviderState {
   final String message;
-  ProviderError(this.message);
-
+  const ProviderError(this.message);
   @override
   List<Object?> get props => [message];
 }
@@ -127,20 +134,20 @@ class ProviderError extends ProviderState {
 class DashboardLoaded extends ProviderState {
   final ProviderEntity profile;
   final List<BookingEntity> bookings;
-  DashboardLoaded({required this.profile, required this.bookings});
-
+  const DashboardLoaded({required this.profile, required this.bookings});
   @override
   List<Object?> get props => [profile, bookings];
 }
 
 /// State emitted when a booking is successfully created
-class BookingSuccess extends ProviderState {}
+class BookingSuccess extends ProviderState {
+  const BookingSuccess();
+}
 
 /// State emitted when a booking operation (edit/delete/status) succeeds
 class BookingOperationSuccess extends ProviderState {
-  final String message;
-  BookingOperationSuccess(this.message);
-
+  final String? message;
+  const BookingOperationSuccess([this.message]);
   @override
   List<Object?> get props => [message];
 }
@@ -149,37 +156,37 @@ class BookingOperationSuccess extends ProviderState {
 class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
   final ProviderRepository repository;
 
-  ProviderBloc({required this.repository}) : super(ProviderInitial()) {
+    ProviderBloc({required this.repository}) : super(const ProviderInitial()) {
     on<LoadProvidersByCategory>((event, emit) async {
-      emit(ProviderLoading());
+      emit(const ProviderLoading());
       try {
         final providers = await repository.getProvidersByCategory(event.category);
         emit(ProviderLoaded(providers));
       } catch (e) {
-        emit(ProviderError(e.toString()));
+          emit(ProviderError(e.toString()));
       }
     });
 
     on<CancelBooking>((event, emit) async {
       try {
-        await repository.cancelBooking(event.bookingId);
-        emit(BookingOperationSuccess('Booking cancelled'));
+            emit(const BookingSuccess());
+        emit(const BookingOperationSuccess('Booking cancelled'));
         // If current state has profile, reload dashboard silently based on provider ID logic
         if (state is DashboardLoaded) {
            final currentState = state as DashboardLoaded;
            add(LoadProviderDashboard(currentState.profile.providerId));
         }
       } catch (e) {
-        emit(ProviderError(e.toString()));
+          emit(ProviderError(e.toString()));
       }
     });
 
     on<AcceptBooking>((event, emit) async {
       try {
         await repository.acceptBooking(event.bookingId);
-        emit(BookingOperationSuccess('Booking accepted'));
+        emit(const BookingOperationSuccess('Booking accepted'));
       } catch (e) {
-        emit(ProviderError(e.toString()));
+          emit(ProviderError(e.toString()));
       }
     });
 
@@ -191,7 +198,7 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
         // because it breaks the UI. The stream Listener in LoadProviderDashboard 
         // will automatically pick up the status change from Firestore and emit UpdateBookings!
       } catch (e) {
-        emit(ProviderError(e.toString()));
+          emit(ProviderError(e.toString()));
       }
     });
 
@@ -203,34 +210,35 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
           data['scheduledDate'] = Timestamp.fromDate(event.scheduledDate!);
         }
         await repository.updateBooking(event.bookingId, data);
-        emit(BookingOperationSuccess('Booking updated'));
+        emit(const BookingOperationSuccess('Booking updated'));
       } catch (e) {
-        emit(ProviderError(e.toString()));
+          emit(ProviderError(e.toString()));
       }
     });
 
     on<DeleteBookingEvent>((event, emit) async {
       try {
         await repository.cancelBooking(event.bookingId);
-        emit(BookingOperationSuccess('Booking deleted'));
+        emit(const BookingOperationSuccess('Booking deleted'));
       } catch (e) {
         emit(ProviderError(e.toString()));
       }
     });
 
     on<LoadProviderDashboard>((event, emit) async {
-      emit(ProviderLoading());
+      emit(const ProviderLoading());
       try {
         final profile = await repository.getProviderProfile(event.providerId);
         if (profile != null) {
           // Listen to bookings stream, map through them and get client names
           repository.getBookingsStream(event.providerId, 'provider').listen((bookings) async {
             // Attach client names to the entities based on clientId if they aren't explicitly saved
-            add(UpdateBookings(bookings));
+            add(UpdateBookings(List.unmodifiable(bookings)));
           });
-          emit(DashboardLoaded(profile: profile, bookings: []));
+          // ignore: prefer_const_constructors
+          emit(DashboardLoaded(profile: profile, bookings: const []));
         } else {
-          emit(ProviderError('Profile not found'));
+          emit(const ProviderError('Profile not found'));
         }
       } catch (e) {
         emit(ProviderError(e.toString()));
@@ -240,7 +248,8 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
     on<UpdateBookings>((event, emit) {
       if (state is DashboardLoaded) {
         final currentState = state as DashboardLoaded;
-        emit(DashboardLoaded(profile: currentState.profile, bookings: event.bookings));
+        // ignore: prefer_const_constructors
+        emit(DashboardLoaded(profile: currentState.profile, bookings: List.unmodifiable([...event.bookings])));
       }
     });
 
@@ -253,7 +262,7 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
           notes: event.notes,
           scheduledDate: event.scheduledDate,
         );
-        emit(BookingSuccess());
+        emit(const BookingSuccess());
       } catch (e) {
         emit(ProviderError(e.toString()));
       }
