@@ -106,7 +106,7 @@ flutter test
 - **Unit tests** (`test/unit_test.dart`): model serialization and business logic
 - **Widget tests** (`test/widget_test.dart`): UI component rendering verification
 
-Coverage: >70%. All tests pass.
+Test coverage exceeds 70%, with all tests passing successfully.
 
 
 
