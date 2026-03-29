@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/presentation/blocs/auth_bloc.dart';
-import 'package:skillconnect/presentation/blocs/settings/settings_bloc.dart';
-import 'package:skillconnect/presentation/blocs/settings/settings_event.dart';
-import 'package:skillconnect/presentation/blocs/settings/settings_state.dart';
 import 'package:skillconnect/presentation/pages/settings_page.dart';
 
 /// Profile page displaying user info and logout option.

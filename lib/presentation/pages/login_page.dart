@@ -3,8 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/presentation/blocs/auth_bloc.dart';
 import 'package:skillconnect/presentation/pages/register_page.dart';
 
-/// Login page with Email/Password authentication.
-/// Includes forgot password dialog and input validation.
+/// Login screen for returning users.
+///
+/// Supports Email/Password authentication via [AuthBloc]. Includes:
+/// - Input validation (empty-field guard before dispatch)
+/// - Password visibility toggle for improved usability
+/// - Forgot-password dialog that triggers a Firebase reset email
+/// - Navigation to [RegisterPage] for new users
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -16,6 +21,9 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  /// Controls whether the password field shows plain text.
+  bool _obscurePassword = true;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -23,7 +31,10 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  /// Shows a dialog for password reset via email
+  /// Shows a modal dialog that lets the user request a password-reset email.
+  ///
+  /// Dispatches [AuthSendPasswordResetRequested] to [AuthBloc] and shows a
+  /// confirmation [SnackBar] so the user knows the email is on its way.
   void _showForgotPasswordDialog() {
     final resetEmailController = TextEditingController();
     showDialog(
@@ -100,8 +111,10 @@ class _LoginPageState extends State<LoginPage> {
                 style: TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 48),
+              // Email input field
               TextField(
                 controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
                   prefixIcon: const Icon(Icons.email_outlined),
@@ -111,14 +124,28 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 16),
+              // Password field with visibility toggle
               TextField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: _obscurePassword,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   prefixIcon: const Icon(Icons.lock_outline),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
                   ),
                 ),
               ),
@@ -130,15 +157,20 @@ class _LoginPageState extends State<LoginPage> {
                     onTap: _showForgotPasswordDialog,
                     child: const Text(
                       'Forgot Password?',
-                      style: TextStyle(color: Color(0xFFE67E22), fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: Color(0xFFE67E22),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 24),
+              // BLoC-driven sign-in button: shows spinner while AuthLoading,
+              // dispatches LogInRequested after basic empty-field validation.
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
-                   if (state is AuthError) {
+                  if (state is AuthError) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(state.message)),
                     );
@@ -150,14 +182,20 @@ class _LoginPageState extends State<LoginPage> {
                   }
                   return ElevatedButton(
                     onPressed: () {
-                      if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+                      if (_emailController.text.isEmpty ||
+                          _passwordController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please enter email and password')),
+                          const SnackBar(
+                            content: Text('Please enter email and password'),
+                          ),
                         );
                         return;
                       }
                       context.read<AuthBloc>().add(
-                        LogInRequested(_emailController.text, _passwordController.text),
+                        LogInRequested(
+                          _emailController.text,
+                          _passwordController.text,
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -168,7 +206,10 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Sign In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Sign In',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
                   );
                 },
               ),
@@ -181,10 +222,18 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const RegisterPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const RegisterPage(),
+                        ),
                       );
                     },
-                    child: const Text('Sign Up', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE67E22))),
+                    child: const Text(
+                      'Sign Up',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFE67E22),
+                      ),
+                    ),
                   ),
                 ],
               ),

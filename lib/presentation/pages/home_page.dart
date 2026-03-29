@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skillconnect/presentation/pages/provider_profile_page.dart';
-import 'package:skillconnect/presentation/pages/search_results_page.dart'; // Added
-import 'package:skillconnect/presentation/blocs/provider_bloc.dart'; // Added
+import 'package:skillconnect/presentation/pages/search_results_page.dart';
+import 'package:skillconnect/presentation/blocs/provider_bloc.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_bloc.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_event.dart';
 import 'package:skillconnect/presentation/blocs/settings/settings_state.dart';
-import 'package:skillconnect/domain/entities/provider_entity.dart'; // Added
+import 'package:skillconnect/domain/entities/provider_entity.dart';
 
+/// The main home screen shown to clients after login.
+///
+/// Displays a search bar, a horizontal category browser, and a
+/// vertical list of recommended verified service providers loaded
+/// from Firestore via [ProviderBloc].
+///
+/// Theme toggling is handled through [SettingsBloc] and persisted
+/// with SharedPreferences so the user's preference survives app restarts.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -19,6 +27,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    // Load an initial set of providers (Tailoring) so the
+    // Recommended section is populated on first paint.
     context.read<ProviderBloc>().add(LoadProvidersByCategory('Tailoring'));
   }
 
@@ -72,6 +82,8 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+/// A styled search input that saves the query to SharedPreferences
+/// and navigates to [SearchResultsPage] on submission.
 class _SearchBar extends StatelessWidget {
   const _SearchBar();
 
@@ -98,9 +110,7 @@ class _SearchBar extends StatelessWidget {
         ),
         onSubmitted: (query) {
           if (query.isNotEmpty) {
-            // Save the search query to shared preferences
             context.read<SettingsBloc>().add(SaveSearchQuery(query));
-            // Navigate to search results
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -114,6 +124,7 @@ class _SearchBar extends StatelessWidget {
   }
 }
 
+/// Horizontal row of tappable service category icons.
 class _CategoriesSection extends StatelessWidget {
   const _CategoriesSection();
 
@@ -124,10 +135,7 @@ class _CategoriesSection extends StatelessWidget {
       children: [
         Text(
           'Categories',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 16),
         Row(
@@ -144,6 +152,7 @@ class _CategoriesSection extends StatelessWidget {
   }
 }
 
+/// A single tappable icon+label tile used in [_CategoriesSection].
 class _CategoryItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -189,6 +198,12 @@ class _CategoryItem extends StatelessWidget {
   }
 }
 
+/// Displays a scrollable list of provider cards sourced from [ProviderBloc].
+///
+/// Handles three BLoC states:
+/// - [ProviderLoading]: shows a centered spinner.
+/// - [ProviderLoaded]: renders a [_ProviderCard] for each result.
+/// - [ProviderError]: surfaces the error message to the user.
 class _RecommendedSection extends StatelessWidget {
   const _RecommendedSection();
 
@@ -199,10 +214,7 @@ class _RecommendedSection extends StatelessWidget {
       children: [
         const Text(
           'Recommended Verified Providers',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         BlocBuilder<ProviderBloc, ProviderState>(
@@ -220,9 +232,7 @@ class _RecommendedSection extends StatelessWidget {
                 separatorBuilder: (context, index) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final provider = state.providers[index];
-                  return _ProviderCard(
-                    provider: provider,
-                  );
+                  return _ProviderCard(provider: provider);
                 },
               );
             } else if (state is ProviderError) {
@@ -236,12 +246,15 @@ class _RecommendedSection extends StatelessWidget {
   }
 }
 
+/// Card widget representing a single service provider in the recommended list.
+///
+/// Shows the provider's business name, a star-rating row built from
+/// [provider.rating], and a verified badge. Tapping navigates to
+/// [ProviderProfilePage] for the full provider detail view.
 class _ProviderCard extends StatelessWidget {
   final ProviderEntity provider;
 
-  const _ProviderCard({
-    required this.provider,
-  });
+  const _ProviderCard({required this.provider});
 
   @override
   Widget build(BuildContext context) {
@@ -306,7 +319,9 @@ class _ProviderCard extends StatelessWidget {
                         5,
                         (index) => Icon(
                           Icons.star,
-                          color: index < provider.rating.floor() ? Colors.amber : Colors.grey[300],
+                          color: index < provider.rating.floor()
+                              ? Colors.amber
+                              : Colors.grey[300],
                           size: 14,
                         ),
                       ),
@@ -327,6 +342,10 @@ class _ProviderCard extends StatelessWidget {
   }
 }
 
+/// Shared bottom navigation bar used on the client home screen.
+///
+/// Note: navigation index state is managed by the parent [MainPage]
+/// rather than here, so [currentIndex] is fixed at 0.
 class _BottomNav extends StatelessWidget {
   const _BottomNav();
 
