@@ -28,8 +28,8 @@ abstract class FirebaseRemoteDataSource {
   Stream<List<BookingModel>> getBookingsStream(String uid, String userType);
   Future<void> sendPasswordResetEmail(String email);
   Future<void> updateBooking(String bookingId, Map<String, dynamic> data);
-  Future<String> getUserName(String uid);
   Future<String> getBusinessName(String providerId);
+  Future<void> rateProvider(String providerId, String bookingId, double rating);
 }
 
 class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
@@ -209,5 +209,32 @@ class FirebaseRemoteDataSourceImpl implements FirebaseRemoteDataSource {
   @override
   Future<void> sendPasswordResetEmail(String email) async {
     await _auth.sendPasswordResetEmail(email: email);
+  }
+
+  @override
+  Future<void> rateProvider(String providerId, String bookingId, double rating) async {
+    await _firestore.runTransaction((transaction) async {
+      final providerRef = _firestore.collection('providers').doc(providerId);
+      final bookingRef = _firestore.collection('bookings').doc(bookingId);
+
+      final providerDoc = await transaction.get(providerRef);
+      if (!providerDoc.exists) throw Exception("Provider record not found");
+
+      final data = providerDoc.data()!;
+      final double currentRating = (data['rating'] ?? 0.0).toDouble();
+      final int currentCount = (data['ratingCount'] ?? 0).toInt();
+
+      final int newCount = currentCount + 1;
+      final double newAverage = ((currentRating * currentCount) + rating) / newCount;
+
+      transaction.update(providerRef, {
+        'rating': newAverage,
+        'ratingCount': newCount,
+      });
+
+      transaction.update(bookingRef, {
+        'isRated': true,
+      });
+    });
   }
 }

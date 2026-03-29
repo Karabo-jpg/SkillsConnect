@@ -77,4 +77,9 @@ class ProviderRepositoryImpl implements ProviderRepository {
   Future<String> getBusinessName(String providerId) async {
     return await remoteDataSource.getBusinessName(providerId);
   }
+
+  @override
+  Future<void> rateProvider(String providerId, String bookingId, double rating) async {
+    await remoteDataSource.rateProvider(providerId, bookingId, rating);
+  }
 }

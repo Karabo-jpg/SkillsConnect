@@ -332,6 +332,67 @@ class _ClientBookingCard extends StatelessWidget {
     );
   }
 
+  void _showRatingDialog(BuildContext context) {
+    double selectedRating = 5.0;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Rate Provider', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFE67E22))),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('How would you rate the service provided?', textAlign: TextAlign.center),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (index) {
+                  return IconButton(
+                    icon: Icon(
+                      index < selectedRating ? Icons.star : Icons.star_border,
+                      color: Colors.amber,
+                      size: 36,
+                    ),
+                    onPressed: () => setState(() => selectedRating = index + 1.0),
+                  );
+                }),
+              ),
+              Text('${selectedRating.toInt()} Stars', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context.read<ProviderBloc>().add(RateProviderEvent(
+                  providerId: booking.providerId,
+                  bookingId: booking.bid,
+                  rating: selectedRating,
+                ));
+                Navigator.pop(dialogContext);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Success! You gave ${booking.serviceName} a $selectedRating star rating.'),
+                    backgroundColor: const Color(0xFF16A085),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFE67E22),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Submit Rating'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool canEdit = booking.status == 'pending' ||
@@ -440,6 +501,21 @@ class _ClientBookingCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              if (booking.status == 'completed' && !booking.isRated)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showRatingDialog(context),
+                    icon: const Icon(Icons.star, size: 16),
+                    label: const Text('Rate Provider'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amber,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                ),
               if (canEdit)
                 TextButton.icon(
                   onPressed: () => _showEditDialog(context),

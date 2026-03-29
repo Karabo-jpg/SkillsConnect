@@ -101,6 +101,17 @@ class DeleteBookingEvent extends ProviderEvent {
   List<Object?> get props => [bookingId];
 }
 
+/// Event to rate a provider (client side)
+class RateProviderEvent extends ProviderEvent {
+  final String providerId;
+  final String bookingId;
+  final double rating;
+  RateProviderEvent({required this.providerId, required this.bookingId, required this.rating});
+
+  @override
+  List<Object?> get props => [providerId, bookingId, rating];
+}
+
 // States
 abstract class ProviderState extends Equatable {
   const ProviderState();
@@ -263,6 +274,15 @@ class ProviderBloc extends Bloc<ProviderEvent, ProviderState> {
           scheduledDate: event.scheduledDate,
         );
         emit(const BookingSuccess());
+      } catch (e) {
+        emit(ProviderError(e.toString()));
+      }
+    });
+
+    on<RateProviderEvent>((event, emit) async {
+      try {
+        await repository.rateProvider(event.providerId, event.bookingId, event.rating);
+        emit(BookingOperationSuccess('Rating submitted successfully!'));
       } catch (e) {
         emit(ProviderError(e.toString()));
       }

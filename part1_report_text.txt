@@ -1,0 +1,113 @@
+Final Project Part 1: User Research & Design
+SkillConnect: Empowering Women Micro-Entrepreneurs through a Digital Marketplace App
+Background
+Women micro-entrepreneurs play an essential role in supporting their families and local economies, but they face many challenges in accessing digital commerce. In low- and middle-income countries, businesses use mobile phones less often, making it harder to communicate with customers, accept digital payments, and promote their services online [1].
+In Africa, women often have low confidence using digital tools, are not very aware of mobile business options, depend on others for financial transactions, and face high data costs. These challenges increase risks and reduce their independence [2][3].
+Programs like EntreprenHER in Southern Africa help women reach more buyers by connecting their businesses to new markets. Still, many women do not have enough support, especially when it comes to using digital business tools and making secure transactions. This gap shows the need for a mobile app that addresses women’s needs and challenges.
+Problem Statement
+Women micro-entrepreneurs in cities and nearby areas who run informal businesses like tailoring, hairdressing, baking, and crafts need a simple and secure mobile platform to talk to clients and handle payments. Right now, they use scattered, informal methods, which make it hard to be seen, build trust, get paid reliably, and keep their income steady.
+Hypothesis Statement
+A mobile marketplace app designed for women micro-entrepreneurs, incorporating offline support, a user-friendly design, digital payment support, and mechanisms to build client trust, is expected to increase client engagement and income reliability within the first three months of adoption. This outcome is anticipated because women deploy mobile tools most effectively when these tools address local usage patterns and confidence barriers [1].
+User Interviews
+Ten women micro-entrepreneurs aged 22 to 38 took part in semi-structured interviews. They were found through personal contacts, friends, and local business groups. Screening questions covered their age, business type, experience, use of digital tools, and problems finding clients. Interviews were done in person and online, recorded with permission, and lasted 15 to 30 minutes. The goal was to learn how they find clients, how they use digital tools, the challenges they face, and what they want from a tech solution.
+Participant
+ID
+Skill/Micro-
+Enterprise
+Main Challenge
+Quote
+P1
+Tailoring
+Limited clients, unreliable payments
+“I just want a simple way to show my skills and get work.”
+P2
+Hairdressing
+Hard to find reliable clients
+“I need more visibility for my work without chasing clients all day.”
+P3
+Home-based cooking
+Last-minute cancellations, payment delays
+“I wish there were an easy way for clients to order from
+me online.”
+P4
+Tailoring
+Low digital literacy
+“Apps are confusing; I just use WhatsApp for clients.”
+P5
+Hairdressing
+Lack of trust from clients
+“Some clients disappear after booking; it's stressful.”
+P6
+Homemade
+crafts
+Difficulty reaching paying clients
+“People love my products, but few know I exist.”
+P7
+Baking
+Payment insecurity
+“I often get orders, but some clients don’t pay on time.”
+P8
+Hair braiding
+Limited marketing channels
+“I rely on word-of-mouth, but
+I want more exposure.”
+P9
+Tailoring
+Competing with cheaper, unverified services
+“Clients sometimes pick others even if my work is better.”
+P10
+Home-based cooking
+Difficulty managing multiple orders
+“It’s hard to track orders and payments at the same time.”
+Interviewees said unreliable payment methods caused delays or resulted in lost payments. They found business tools hard to use because they lacked digital confidence. It was also difficult to find new clients outside their usual networks. Many liked WhatsApp for its simplicity, but it was not good enough for managing orders, making secure payments, or growing their client base.https://drive.google.com/drive/folders/1sKr46s6rJp6DQ0at6fFLyvawRHZhpkLm?usp=drive_link 
+Interview Transcripts Empathy Maps
+Empathy maps were created for each interviewee and later aggregated to identify shared patterns. Across the user base:
+Users frequently mentioned wanting more clients, that current methods (such as WhatsApp) are insufficient for scalable business management, and that secure payments would reduce stress.
+Thinks: Many expressed concerns about whether digital tools would be too complex or whether investing time in technology would actually yield results. 
+Most users currently rely on informal channels, such as messaging apps and word‑of‑mouth, to acquire clients and manage orders.
+Feels: Participants commonly felt frustrated, anxious about inconsistent income, and hopeful that a purpose‑built platform could reduce uncertainty and create predictable revenue.
+These aggregated insights directly informed the prioritization of ease of use, trust features, and payment reliability in the app design.  Faith - Tailor  Amina - HairdresserGrace - Home CookMama Rose - Low Digital Literacy TailorEsther - HairdresserComfort - Crafts MakerPatricia -  BakerAbena - Hair BraiderJuliet -TailorHome - ChefSegment 1: Visibility Seekers - Faith, Amina, Comfort, AbenaSegment 2: Trust & Payment Concerned - Grace, Esther, PatriciaSegment 3: Tech-Challenged & Overwhelmed - Mama Rose, Juliet, Mercy
+User Personas
+Name: Faith
+Age: 28
+Occupation: Tailor in an urban marketplace
+Faith seeks steady clients and reliable payments but struggles with limited digital skills and limited visibility beyond her local community. She currently advertises on WhatsApp and keeps manual order records, which is time‑consuming and error‑prone. Faith is motivated to expand her consumer base but lacks confidence in complex digital platforms. Her goals include increasing her income and reducing the instability of informal work.
+Competitor Analysis
+Competitor analysis covered both direct and indirect solutions available to women micro‑entrepreneurs.
+Direct Competitors:
+WhatsApp Business: Widely used for client communication but lacks structured discovery, secure payments, and marketplace features [2].
+Jiji Uganda (formerly OLX Uganda): One of the most widely used online classifieds and marketplace platforms in Uganda that permits individuals and small businesses to list products and services for free. While Jiji is not particularly made for service bookings, it is commonly used by Ugandans to advertise services and attract customers locally [3][5].
+Indirect Competitors:
+Facebook Marketplace: Provides broad exposure but lacks trust features, payment integration, and user flows designed for informal service providers.
+Jumia Uganda: A large e-commerce platform that connects sellers (including small vendors) to a broad customer base. While primarily focused on products rather than informal service listings, Jumia’s reach and ability to integrate payment systems present a partial alternative for micro sellers seeking digital exposure [3][8].
+These platforms demonstrate that while several digital marketplaces exist in Uganda, none directly address the combination of service discovery, trust mechanisms, secure payments, and simple onboarding tailored to women micro-entrepreneurs. SkillConnect aims to fill this gap by offering an accessible marketplace that prioritizes usability, localized service listings, and mobile-friendly payment and feedback systems.
+User Journey Map (Existing Solution – WhatsApp Business)
+The following stages represent a typical user experience when using Jiji to find service work:
+Discover Client: User posts a service ad or searches listings; results are broad and unfiltered.
+Negotiate Order: Messaging or phone calls are used to agree on terms; no formal price or scheduling structure.
+Secure Payment: Payments are handled informally (cash or mobile money), often with risks and delays.
+Fulfillment Service: Task completion occurs without tracking or feedback, making it hard to build trust and repeat business.
+Pain Points: Unstructured discovery, inconsistent payments, and no formal review or trust system.Opportunities: Structured search, automated booking, integrated payments, and credible feedback can directly address these pain points.
+Unique Value Proposition
+SkillConnect is a simple, local mobile marketplace for women micro-entrepreneurs. It helps them get noticed, makes payments more reliable, and builds trust with clients. The platform is designed to help businesses grow without being too technical or risky.User Flows
+Core Flow – Placing an Order:
+The user logs into the app, looks through service categories, picks a provider, confirms the order, pays using mobile money or offline options, gets a confirmation, and then gives feedback after the service.
+Core Flow – Provider Onboarding:
+Providers create a profile, add details about their services and photos, set their availability, accept bookings, and keep track of payments and ratings in a simple dashboard designed for users with low literacy.
+Both flows include user-friendly features. Both flows have easy navigation, error-handling when offline, and checks to ensure information is entered correctly. Storyboard sequence depicts Faith logging into SkillConnect, uploading her tailoring services with images, receiving a booking from a nearby client, confirming the order and payment via mobile money, fulfilling the service, and receiving positive feedback. This sequence illustrates how SkillConnect replaces informal, error-prone processes with a structured and reliable workflow.
+Storyboards
+In a typical storyboard sequence, Faith logs into SkillConnect, uploads her tailoring services with images, receives a booking from a nearby client, confirms the order and payment via mobile money, fulfills the service, and receives positive feedback — illustrating how SkillConnect replaces informal, error-prone processes with a structured, reliable workflow.
+Information Architecture
+SkillConnect’s main navigation has Home, Categories, Bookings, Profile, Payments, Notifications, and Help. The bottom navigation bar provides quick access to these features, making the app easier to use and understand.
+Figma prototype
+https://www.figma.com/design/VLkwWschvAl8PJIUzjbbij/SkillConnect?node-id=0-1&t=JDKxzR9kUl4Zv0eE-1Figma
+References 
+[1] GSMA, “Understanding women micro-entrepreneurs’ use of mobile phones for business: Evidence from 10 low- and middle-income countries,” 2023. [Online]. Available: https://www.gsma.com/mobilefordevelopment/resources/understanding-women-micro-entrepreneurs-use-of-mobile-phones-for-business/
+[2] GSMA, “Empowering women micro-entrepreneurs through mobile,” GSMA Mobile for Development, 2023. [Online]. Available: https://www.gsma.com/solutions-and-impact/connectivity-for-good/mobile-for-development/wp-content/uploads/2023/02/Empowering-women-micro-entrepreneurs-through-mobile.pdf
+[3] Condala Blog, “Top Products Ugandans Buy Online Revealed,” 2025. [Online]. Available: https://condala.com/blog/top-products-ugandans-buy-online-revealed/
+[4] Jiji Uganda, “What is a ‘marketplace’,” Jiji Uganda FAQ. [Online]. Available: https://jiji.ug/faq/84
+[5] Jiji Uganda, “Services in Uganda,” Jiji Uganda. [Online]. Available: https://jiji.ug/services
+[6] Abanista Marketplace, “Become a Supplier: Sell on Abanista,” Abanista. [Online]. Available: https://www.abanista.com/seller-portal/become-a-supplier/
+[7] Here In Uganda, “Top Shopping Apps Ranking in Uganda,” 2025. [Online]. Available: https://hereinuganda.com/top-shopping-apps-ranking-in-uganda
+[8] Bettomax Mobile Experience: How to Download and Get Started with the App -Jotscroll. https://www.jotscroll.com/bettomax-mobile-experience-how-to-download-and-get-started-with-the-app
+TASK SHEET - https://docs.google.com/spreadsheets/d/1dh6TB206zowUO7jHouAqFBa4gOsoycEw_mSYc28DLZ4/edit?usp=sharing

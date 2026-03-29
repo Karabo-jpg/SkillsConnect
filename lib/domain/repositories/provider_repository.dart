@@ -13,4 +13,5 @@ abstract class ProviderRepository {
   Stream<List<BookingEntity>> getBookingsStream(String uid, String userType);
   Future<String> getUserName(String uid);
   Future<String> getBusinessName(String providerId);
+  Future<void> rateProvider(String providerId, String bookingId, double rating);
 }

@@ -12,6 +12,7 @@ class BookingModel extends BookingEntity {
     required super.depositAmount,
     required super.status,
     super.notes = '',
+    super.isRated = false,
   });
 
   factory BookingModel.fromFirestore(DocumentSnapshot doc) {
@@ -48,6 +49,7 @@ class BookingModel extends BookingEntity {
       depositAmount: (data['depositAmount'] ?? data['totalAmount'] ?? 0.0).toDouble(),
       status: data['status'] ?? 'pending',
       notes: data['notes'] ?? '',
+      isRated: data['isRated'] ?? false,
     );
   }
 
@@ -61,6 +63,7 @@ class BookingModel extends BookingEntity {
       'depositAmount': depositAmount,
       'status': status,
       'notes': notes,
+      'isRated': isRated,
     };
   }
 }

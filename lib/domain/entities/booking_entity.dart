@@ -10,6 +10,7 @@ class BookingEntity extends Equatable {
   final double depositAmount;
   final String status;
   final String notes;
+  final bool isRated;
 
   const BookingEntity({
     required this.bid,
@@ -21,8 +22,9 @@ class BookingEntity extends Equatable {
     required this.depositAmount,
     required this.status,
     this.notes = '',
+    this.isRated = false,
   });
 
   @override
-  List<Object?> get props => [bid, clientId, providerId, serviceName, bookingDate, scheduledDate, depositAmount, status, notes];
+  List<Object?> get props => [bid, clientId, providerId, serviceName, bookingDate, scheduledDate, depositAmount, status, notes, isRated];
 }

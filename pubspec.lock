@@ -80,15 +80,26 @@ packages:
       sha256: "2f5709ae4d3d59dd8f7cd309b4e023046b57d8a6c82130785d2b0e5868084e76"
       url: "https://pub.dev"
     source: hosted
+<<<<<<< HEAD
     version: "1.19.1"
+=======
+    version: "1.19.0"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   cross_file:
     dependency: transitive
     description:
       name: cross_file
+<<<<<<< HEAD
       sha256: "28bb3ae56f117b5aec029d702a90f57d285cd975c3c5c281eaca38dbc47c5937"
       url: "https://pub.dev"
     source: hosted
     version: "0.3.5+2"
+=======
+      sha256: "7caf6a750a0c04effbb52a676dce9a4a592e10ad35c34d6d2d0e4811160d5670"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.4+2"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   crypto:
     dependency: transitive
     description:
@@ -141,34 +152,62 @@ packages:
     dependency: transitive
     description:
       name: file_selector_linux
+<<<<<<< HEAD
       sha256: "2567f398e06ac72dcf2e98a0c95df2a9edd03c2c2e0cacd4780f20cdf56263a0"
       url: "https://pub.dev"
     source: hosted
     version: "0.9.4"
+=======
+      sha256: "54cbbd957e1156d29548c7d9b9ec0c0ebb6de0a90452198683a7d23aed617a33"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.3+2"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   file_selector_macos:
     dependency: transitive
     description:
       name: file_selector_macos
+<<<<<<< HEAD
       sha256: "5e0bbe9c312416f1787a68259ea1505b52f258c587f12920422671807c4d618a"
       url: "https://pub.dev"
     source: hosted
     version: "0.9.5"
+=======
+      sha256: "8c9250b2bd2d8d4268e39c82543bacbaca0fda7d29e0728c3c4bbb7c820fd711"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.4+3"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   file_selector_platform_interface:
     dependency: transitive
     description:
       name: file_selector_platform_interface
+<<<<<<< HEAD
       sha256: "35e0bd61ebcdb91a3505813b055b09b79dfdc7d0aee9c09a7ba59ae4bb13dc85"
       url: "https://pub.dev"
     source: hosted
     version: "2.7.0"
+=======
+      sha256: a3994c26f10378a039faa11de174d7b78eb8f79e4dd0af2a451410c1a5c3f66b
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.6.2"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   file_selector_windows:
     dependency: transitive
     description:
       name: file_selector_windows
+<<<<<<< HEAD
       sha256: "62197474ae75893a62df75939c777763d39c2bc5f73ce5b88497208bc269abfd"
       url: "https://pub.dev"
     source: hosted
     version: "0.9.3+5"
+=======
+      sha256: "320fcfb6f33caa90f0b58380489fc5ac05d99ee94b61aa96ec2bff0ba81d3c2b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.3+4"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   firebase_auth:
     dependency: "direct main"
     description:
@@ -242,10 +281,17 @@ packages:
     dependency: transitive
     description:
       name: flutter_plugin_android_lifecycle
+<<<<<<< HEAD
       sha256: "38d1c268de9097ff59cf0e844ac38759fc78f76836d37edad06fa21e182055a0"
       url: "https://pub.dev"
     source: hosted
     version: "2.0.34"
+=======
+      sha256: "6382ce712ff69b0f719640ce957559dde459e55ecd433c767e06d139ddf16cab"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.29"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -292,34 +338,62 @@ packages:
     dependency: "direct main"
     description:
       name: image_picker
+<<<<<<< HEAD
       sha256: "784210112be18ea55f69d7076e2c656a4e24949fa9e76429fe53af0c0f4fa320"
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
+=======
+      sha256: "736eb56a911cf24d1859315ad09ddec0b66104bc41a7f8c5b96b4e2620cf5041"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   image_picker_android:
     dependency: transitive
     description:
       name: image_picker_android
+<<<<<<< HEAD
       sha256: "9eae0cbd672549dacc18df855c2a23782afe4854ada5190b7d63b30ee0b0d3fd"
       url: "https://pub.dev"
     source: hosted
     version: "0.8.13+15"
+=======
+      sha256: e83b2b05141469c5e19d77e1dfa11096b6b1567d09065b2265d7c6904560050c
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.13"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   image_picker_for_web:
     dependency: transitive
     description:
       name: image_picker_for_web
+<<<<<<< HEAD
       sha256: "66257a3191ab360d23a55c8241c91a6e329d31e94efa7be9cf7a212e65850214"
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+=======
+      sha256: "40c2a6a0da15556dc0f8e38a3246064a971a9f512386c3339b89f76db87269b6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   image_picker_ios:
     dependency: transitive
     description:
       name: image_picker_ios
+<<<<<<< HEAD
       sha256: b9c4a438a9ff4f60808c9cf0039b93a42bb6c2211ef6ebb647394b2b3fa84588
       url: "https://pub.dev"
     source: hosted
     version: "0.8.13+6"
+=======
+      sha256: eb06fe30bab4c4497bad449b66448f50edcc695f1c59408e78aa3a8059eb8f0e
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.13"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   image_picker_linux:
     dependency: transitive
     description:
@@ -332,18 +406,32 @@ packages:
     dependency: transitive
     description:
       name: image_picker_macos
+<<<<<<< HEAD
       sha256: "86f0f15a309de7e1a552c12df9ce5b59fe927e71385329355aec4776c6a8ec91"
       url: "https://pub.dev"
     source: hosted
     version: "0.2.2+1"
+=======
+      sha256: d58cd9d67793d52beefd6585b12050af0a7663c0c2a6ece0fb110a35d6955e04
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   image_picker_platform_interface:
     dependency: transitive
     description:
       name: image_picker_platform_interface
+<<<<<<< HEAD
       sha256: "567e056716333a1647c64bb6bd873cff7622233a5c3f694be28a583d4715690c"
       url: "https://pub.dev"
     source: hosted
     version: "2.11.1"
+=======
+      sha256: "9f143b0dba3e459553209e20cc425c9801af48e6dfa4f01a0fcf927be3f41665"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.11.0"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   image_picker_windows:
     dependency: transitive
     description:
@@ -415,7 +503,11 @@ packages:
       sha256: "23f08335362185a5ea2ad3a4e597f1375e78bce8a040df5c600c8d3552ef2394"
       url: "https://pub.dev"
     source: hosted
+<<<<<<< HEAD
     version: "1.17.0"
+=======
+    version: "1.15.0"
+>>>>>>> 5309b93 (Feature: Implement Client-driven Rating System with real-time average calculation)
   mime:
     dependency: transitive
     description:
